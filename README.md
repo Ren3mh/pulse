@@ -16,3 +16,4 @@ dotnet test
 ## Docs
 
 - [Event format](docs/event-format.md)
+- [Prototype architecture](docs/architecture.md): diagrams of the Python prototype
