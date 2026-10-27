@@ -1,0 +1,26 @@
+name: pulse_analytics
+version: "1.0.0"
+profile: pulse_analytics
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: target
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  pulse_analytics:
+    staging:
+      # Cleaned-up copies of the raw tables. Views: always current, no storage.
+      +schema: staging
+      +materialized: view
+    marts:
+      # Questions answered ahead of time. These are the only tables an agent sees.
+      +schema: marts
+      +materialized: table
+      +grants:
+        select: ["pulse_agent"]
+
+on-run-end:
+  # Table grants come from +grants above; the schema itself needs USAGE too.
+  - "grant usage on schema marts to pulse_agent"

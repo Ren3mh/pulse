@@ -1,0 +1,15 @@
+# Connection for dbt. Values come from environment variables with local
+# defaults, so the same file works on a laptop, in CI and on a server.
+# Run dbt from this folder, or pass --profiles-dir analytics.
+pulse_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PULSE_DB_HOST', 'localhost') }}"
+      port: "{{ env_var('PULSE_DB_PORT', '5432') | int }}"
+      user: "{{ env_var('PULSE_DB_USER', 'pulse') }}"
+      password: "{{ env_var('PULSE_DB_PASSWORD', 'pulse') }}"
+      dbname: "{{ env_var('PULSE_DB_NAME', 'pulse') }}"
+      schema: analytics
+      threads: 4

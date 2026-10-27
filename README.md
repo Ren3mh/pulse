@@ -16,4 +16,5 @@ dotnet test
 ## Docs
 
 - [Event format](docs/event-format.md)
-- [Prototype architecture](docs/architecture.md): diagrams of the Python prototype
+- [Prototype architecture](docs/architecture.md): diagrams of the Python prototype, dbt marts and MCP server
+- [Agent session example](docs/agent-session-example.md): a model answering from the marts

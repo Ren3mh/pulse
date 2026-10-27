@@ -4,3 +4,6 @@ psycopg[binary]==3.3.6
 pydantic==2.14.1
 pytest==9.1.1
 httpx2==2.16.0
+dbt-core==1.12.6
+dbt-postgres==1.11.0
+mcp==2.3.0

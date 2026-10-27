@@ -1,6 +1,6 @@
 # pulse prototype: architecture
 
-How the Python prototype in `prototype/` fits together. The diagrams are
+How the Python prototype in `prototype/` fits together: the event API, the dbt marts and the MCP server that gives an AI agent controlled access to them. The diagrams are
 [Mermaid](https://mermaid.js.org/); GitHub draws them, and they can be edited as text.
 
 ## Contents
@@ -10,7 +10,9 @@ How the Python prototype in `prototype/` fits together. The diagrams are
 3. [The Event model and the modules around it](#3-the-event-model-and-the-modules-around-it)
 4. [The two tables](#4-the-two-tables)
 5. [Startup, and how the tests reuse it](#5-startup-and-how-the-tests-reuse-it)
-6. [Where the next phases plug in](#6-where-the-next-phases-plug-in)
+6. [Controlled context: what the model can see](#6-controlled-context-what-the-model-can-see)
+7. [One agent question, and every check on the way](#7-one-agent-question-and-every-check-on-the-way)
+8. [Where the next phases plug in](#8-where-the-next-phases-plug-in)
 
 ## 1. What happens when someone clicks a product
 
@@ -198,24 +200,96 @@ flowchart TD
 - Both SQL files are written to be **safe to run again**: `CREATE TABLE IF NOT EXISTS` and `ON CONFLICT DO NOTHING`. That's why restarting never fails or duplicates products.
 - Tests talk to a real Postgres database, `pulse_test`, instead of mocks. Slower by a second, but they catch SQL mistakes mocks would hide.
 
-## 6. Where the next phases plug in
+## 6. Controlled context: what the model can see
 
-*Roadmap diagram.* Solid lines exist today. Dashed lines are planned. Note how much of the future hangs off store.py and Postgres.
+*Data flow diagram.* Three Postgres schemas: raw tables, staging views and documented mart tables, all built by dbt except raw. Raw events flow up into a few documented marts. The agent only reaches the top layer, and gets its context from dbt's own documentation.
+
+```mermaid
+flowchart TB
+    subgraph raw["RAW"]
+        EV[("events (visitor ids)")]
+        PR[("products")]
+    end
+    subgraph stg["STAGING"]
+        SE["stg_events"]
+        SP["stg_products"]
+    end
+    subgraph marts["MARTS"]
+        M1["mart_product_performance"]
+        M2["mart_search_demand (5+ visitors per term)"]
+        M3["mart_catalog_gaps"]
+        M4["mart_daily_funnel"]
+    end
+    EV --> SE
+    PR --> SP
+    SE --> M1
+    SE --> M2
+    SE --> M4
+    SP --> M1
+    M1 --> M3
+    SP --> M3
+    MAN[/"manifest.json (descriptions, grain, agent_exposed)"/]
+    MCP["pulse_mcp server, role pulse_agent"]
+    AG["AI agent"]
+    MAN -->|"context"| MCP
+    marts -->|"SELECT, read-only"| MCP
+    MCP -->|"list_marts, describe_mart, query_mart"| AG
+    AG -.-x|"permission denied"| raw
+```
+
+- **Raw and staging** hold one row per click with visitor ids. The `pulse_agent` role gets *permission denied* on both.
+- **Marts** answer questions ahead of time and contain no visitor ids. `mart_search_demand` drops any search term typed by fewer than 5 visitors, so rare or personal searches never reach the model.
+- **manifest.json** is written by `dbt build`. The MCP server reads each mart's description, grain and column descriptions from it, so the model's context and the SQL are kept in one place and can't drift apart.
+- Only models marked `agent_exposed: true` and only documented columns are offered. A new mart is invisible to agents until someone documents it and opts it in.
+
+## 7. One agent question, and every check on the way
+
+*UML sequence diagram.* What happens when the model calls query_mart. Each check can stop the call, and each refusal says how to fix it.
+
+```mermaid
+sequenceDiagram
+    participant AG as AI agent
+    participant S as server.py
+    participant M as marts.py
+    participant PG as Postgres (pulse_agent)
+    AG->>S: query_mart(name, columns, filters, order_by, limit)
+    S->>S: arguments match schema? unknown ones refused
+    S->>M: get_mart(name)
+    M->>M: exposed mart in manifest?
+    M->>M: columns, filters, order_by documented?
+    M->>M: build SQL with Identifier and parameters, cap at 100 rows
+    M->>PG: SELECT ... FROM marts.mart_x (read-only transaction)
+    alt anything outside marts
+        PG-->>M: permission denied
+    else
+        PG-->>M: rows
+    end
+    M-->>S: rows, row_count, truncated
+    S-->>AG: result, or a refusal that says how to fix the call
+```
+
+- **Unknown arguments are refused**, not ignored. A real model packed its filters into a made-up `query` argument; silently ignoring it would have returned unfiltered rows that looked filtered. See `docs/agent-session-example.md`.
+- Mart and column names are checked against the manifest, then quoted with `sql.Identifier`. Values are always query parameters, so there is no way to inject SQL.
+- Even if every check above failed, Postgres would still refuse: the role can only SELECT on marts, every transaction is read-only, and queries stop after 5 seconds.
+
+## 8. Where the next phases plug in
+
+*Roadmap diagram.* Solid lines exist today. Dashed lines are planned. Note how much of the future hangs off store.py and the marts.
 
 ```mermaid
 flowchart TB
     T["track.js"] --> APP["app.py"]
     APP --> ST["store.py"]
-    ST -->|"today"| PG[("Postgres")]
+    ST -->|"today"| PG[("Postgres raw tables")]
     ST -.->|"phase 4"| Q[["queue"]]
     Q -.-> W["worker"]
     W -.-> PG
-    PG -.->|"next"| MCP["MCP server (read-only)"]
-    MCP -.->|"search_products, catalog_gaps"| AG["AI agent"]
-    PG -.->|"phase 2"| SQLM["SQL models / dbt"]
-    SQLM -.-> D["dashboard"]
+    PG -->|"dbt build"| MARTS["dbt marts"]
+    MARTS --> MCP["MCP server (read-only)"]
+    MCP --> AG["AI agent"]
+    MARTS -.->|"later"| D["dashboard"]
 ```
 
 - **Phase 4** swaps one line of responsibility: `save_event()` publishes to a queue instead of writing to Postgres. track.js, app.py and the tests don't change.
-- **The MCP server** only reads. It sits next to the API, not inside it, and should use a Postgres role with SELECT only.
-- **Phase 2** SQL models join events with products, for example views per product or searches with zero results.
+- **A dashboard** can read the same marts as the agent, so people and the model see the same numbers.
+- **More marts** are the main way to give an agent new abilities: add a model, document it, mark it `agent_exposed`.

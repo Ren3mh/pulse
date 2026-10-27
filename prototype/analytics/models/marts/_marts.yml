@@ -1,0 +1,143 @@
+version: 2
+
+# These descriptions are not just documentation. The MCP server reads them from
+# dbt's manifest and hands them to the AI agent as its context: what each mart
+# is, its grain, and what every column means. Only models with
+# meta.agent_exposed: true are offered to the agent at all.
+
+models:
+  - name: mart_product_performance
+    description: >
+      One row per product in the catalogue, with how much attention it gets (views)
+      and how often it is added to the cart, counted over all tracked events.
+      Use it to compare products, categories or designers, or to find products that
+      get looked at but rarely added to the cart.
+    config:
+      meta:
+        agent_exposed: true
+        grain: one row per product
+    columns:
+      - name: product_id
+        description: Product identifier (a slug, e.g. fjord-lounge-chair).
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: name
+        description: Product name as shown in the shop.
+      - name: designer
+        description: Designer of the product.
+      - name: category
+        description: One of chairs, sofas, lighting, tables, accessories.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [chairs, sofas, lighting, tables, accessories]
+      - name: price_dkk
+        description: Current price in Danish kroner, including VAT.
+      - name: has_description_da
+        description: True if the product has a Danish shop text.
+      - name: has_description_de
+        description: True if the product has a German shop text (needed for the German webshop).
+      - name: views
+        description: Number of product page views.
+      - name: unique_viewers
+        description: Number of different visitors who viewed the product.
+      - name: cart_adds
+        description: Number of times the product was added to a cart.
+      - name: unique_cart_adders
+        description: Number of different visitors who added it to a cart.
+      - name: view_to_cart_rate
+        description: >
+          unique_cart_adders divided by unique_viewers, from 0 to 1.
+          Empty when nobody has viewed the product.
+      - name: cart_value_dkk
+        description: Sum of prices of all cart adds, in DKK. Cart adds are intent, not sales.
+
+  - name: mart_search_demand
+    description: >
+      One row per search term typed in the shop's search box, with how often it was
+      searched and whether the shop found anything. Use it to spot demand the
+      catalogue or the search does not meet. For privacy, a term only appears once
+      at least 5 different visitors have searched for it, so rare or personal
+      searches are never included.
+    config:
+      meta:
+        agent_exposed: true
+        grain: one row per search term (lowercased, trimmed)
+    columns:
+      - name: search_query
+        description: The search term, lowercased and trimmed.
+        data_tests: [unique, not_null]
+      - name: searches
+        description: Number of times the term was searched.
+      - name: unique_searchers
+        description: Number of different visitors who searched for it. Always 5 or more.
+      - name: zero_result_searches
+        description: Number of searches that returned no products.
+      - name: avg_results
+        description: Average number of products returned.
+      - name: never_found_anything
+        description: True if every search for this term returned zero products.
+      - name: last_searched_on
+        description: Most recent date the term was searched (Europe/Copenhagen).
+
+  - name: mart_catalog_gaps
+    description: >
+      Products with missing catalogue data, ordered by how much traffic they get, so
+      the most important gaps come first. Use it to plan content work, such as which
+      German texts to write first for the German webshop.
+    config:
+      meta:
+        agent_exposed: true
+        grain: one row per product with at least one gap
+    columns:
+      - name: product_id
+        description: Product identifier.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Product name.
+      - name: category
+        description: Product category.
+      - name: missing_fields
+        description: >
+          List of what is missing. Possible values: description_da (Danish text),
+          description_de (German text), dimensions (width, depth or height), materials.
+      - name: gap_count
+        description: Number of missing fields.
+      - name: missing_german_text
+        description: True if the German shop text is missing.
+      - name: views
+        description: Product page views, all time.
+      - name: view_to_cart_rate
+        description: Share of viewers who added it to a cart, from 0 to 1.
+      - name: priority
+        description: 1 is the gap to fix first (most views, then most gaps).
+        data_tests: [unique, not_null]
+
+  - name: mart_daily_funnel
+    description: >
+      One row per day with the number of distinct visitors reaching each step:
+      visiting, searching, viewing a product, adding to the cart. Use it for trends
+      over time and for the share of visitors who add something to the cart.
+    config:
+      meta:
+        agent_exposed: true
+        grain: one row per day (Europe/Copenhagen)
+    columns:
+      - name: event_date
+        description: The day, in the shop's timezone (Europe/Copenhagen).
+        data_tests: [unique, not_null]
+      - name: visitors
+        description: Distinct visitors with any event that day.
+      - name: searchers
+        description: Distinct visitors who searched.
+      - name: product_viewers
+        description: Distinct visitors who viewed at least one product.
+      - name: cart_adders
+        description: Distinct visitors who added at least one product to the cart.
+      - name: visitor_to_cart_rate
+        description: cart_adders divided by visitors, from 0 to 1.

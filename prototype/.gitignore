@@ -1,3 +1,7 @@
 .venv/
 __pycache__/
 .pytest_cache/
+analytics/target/
+analytics/logs/
+analytics/dbt_packages/
+analytics/.user.yml

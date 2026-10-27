@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "pulse-marts": {
+      "command": "prototype/.venv/bin/python",
+      "args": ["-m", "pulse_mcp.server"],
+      "env": {
+        "PYTHONPATH": "prototype"
+      }
+    }
+  }
+}

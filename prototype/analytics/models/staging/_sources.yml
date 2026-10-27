@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: pulse
+    description: Raw tables written by the pulse API. Never read by agents.
+    schema: public
+    tables:
+      - name: events
+        description: One row per tracked event, in the v1 format (docs/event-format.md).
+        columns:
+          - name: event_id
+            data_tests: [unique, not_null]
+      - name: products
+        description: The shop's product catalogue.
+        columns:
+          - name: product_id
+            data_tests: [unique, not_null]
