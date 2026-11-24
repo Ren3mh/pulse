@@ -16,5 +16,33 @@ services:
       timeout: 3s
       retries: 10
 
+  # Stand-in for the retailer's Dynamics AX 2009 database (SQL Server).
+  ax:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: Pulse_local_1! # local development only
+    ports:
+      - "1433:1433"
+    volumes:
+      - ax-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Pulse_local_1!' -Q 'SELECT 1' -b"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Creates the AX tables once SQL Server is up, then exits.
+  ax-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      ax:
+        condition: service_healthy
+    volumes:
+      - ./ax:/ax:ro
+    entrypoint: ["/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "ax", "-U", "sa", "-P", "Pulse_local_1!", "-b", "-i", "/ax/schema.sql"]
+    restart: "no"
+
 volumes:
   postgres-data:
+  ax-data:
