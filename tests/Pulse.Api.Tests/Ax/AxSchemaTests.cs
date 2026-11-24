@@ -7,9 +7,7 @@ namespace Pulse.Api.Tests.Ax;
 // Runs ax/schema.sql against a real SQL Server, the same way docker compose does.
 public class AxSchemaTests : IAsyncLifetime
 {
-    private readonly MsSqlContainer _sql = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-        .Build();
+    private readonly MsSqlContainer _sql = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").Build();
 
     public Task InitializeAsync() => _sql.StartAsync();
 
