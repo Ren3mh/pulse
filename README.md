@@ -35,10 +35,29 @@ First steps:
 ## Run locally
 
 ```sh
-docker compose up -d        # Postgres on localhost:5432
+docker compose up -d        # Postgres on :5432, AX 2009 emulator on :1433
 dotnet run --project src/Pulse.Api
 dotnet test
 ```
+
+Shopify credentials live in user-secrets, never in git:
+
+```sh
+dotnet user-secrets set "Shopify:StoreDomain" "<store>.myshopify.com" --project src/Pulse.Api
+dotnet user-secrets set "Shopify:ClientId" "<id>" --project src/Pulse.Api
+dotnet user-secrets set "Shopify:ClientSecret" "<secret>" --project src/Pulse.Api
+```
+
+Fill both systems with the same furniture catalogue (safe to rerun):
+
+```sh
+dotnet run --project src/Pulse.Seed            # both
+dotnet run --project src/Pulse.Seed -- ax      # AX only
+dotnet run --project src/Pulse.Seed -- shopify # Shopify only
+```
+
+AX emulator in Rider: SQL Server, `localhost:1433`, user `sa`, password
+`Pulse_local_1!`, database `DynamicsAx`, company (`DATAAREAID`) `pul`.
 
 ## Docs
 

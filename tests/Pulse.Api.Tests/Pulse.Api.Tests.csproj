@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Pulse.Api\Pulse.Api.csproj" />
+    <ProjectReference Include="..\..\src\Pulse.Seed\Pulse.Seed.csproj" />
   </ItemGroup>
 
 </Project>
