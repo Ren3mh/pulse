@@ -66,5 +66,7 @@ AX emulator in Rider: SQL Server, `localhost:1433`, user `sa`, password
 
 ## Docs
 
+- [Tours](docs/tours/index.html): a history of finished work, each run and
+  shown with diagrams and real output. Open in a browser.
 - [Event format](docs/event-format.md): kept for future webshop events
   (e.g. product views); not part of phase 1.

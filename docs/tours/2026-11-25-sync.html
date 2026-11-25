@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Sync Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; the diagram and tables break wider. Blueprint
+   neutrals with a timber accent for stock, the thing both systems count. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #17202e;
+  --muted: #5a6577;
+  --line: #d5dae3;
+  --accent: #b5651d;      /* stock / snapshots */
+  --ax: #2f5d8a;          /* AX side */
+  --shop: #4f7a3a;        /* Shopify side */
+  --next: #8a8fa0;        /* not built yet */
+  --warn-bg: #fbf1e4;
+  --code-bg: #eef1f5;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181e28; --ink: #e6e9ef; --muted: #9aa4b5; --line: #2c3442;
+    --accent: #e09a52; --ax: #7aa7d6; --shop: #93c07a; --next: #6f7586;
+    --warn-bg: #2a2117; --code-bg: #1f2632; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181e28; --ink: #e6e9ef; --muted: #9aa4b5; --line: #2c3442;
+  --accent: #e09a52; --ax: #7aa7d6; --shop: #93c07a; --next: #6f7586;
+  --warn-bg: #2a2117; --code-bg: #1f2632; color-scheme: dark;
+}
+
+html { color-scheme: light; }
+@media (prefers-color-scheme: dark) { html { color-scheme: dark; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap {
+  max-width: 980px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 56px;
+}
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 500; }
+p { margin: 0; }
+section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.eyebrow { font: 600 0.75rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+code, .mono { font-family: var(--f-mono); font-size: 0.88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+a { color: var(--ax); }
+.back { font: 500 0.85rem var(--f-mono); color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--ink); }
+
+header { display: flex; flex-direction: column; gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.8rem/1 var(--f-mono); padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.chip.ok { border-color: var(--shop); color: var(--shop); }
+.chip.pending { border-color: var(--accent); color: var(--accent); }
+
+.figure { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.figure svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.85rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+.legend .l-replace::before { border-color: var(--ink); }
+.legend .l-append::before { border-color: var(--accent); border-top-width: 3px; }
+.legend .l-next::before { border-color: var(--next); border-top-style: dashed; }
+
+ol.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; counter-reset: step; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 44px 1fr; gap: 0 14px; position: relative; padding-bottom: 22px; }
+ol.steps li::before {
+  content: counter(step); grid-row: 1 / span 3; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; font: 600 0.9rem/1 var(--f-mono);
+  background: var(--surface); border: 2px solid var(--ink); z-index: 1;
+}
+ol.steps li::after { content: ""; position: absolute; left: 15px; top: 34px; bottom: 0; border-left: 2px solid var(--line); }
+ol.steps li:last-child::after { display: none; }
+ol.steps li.ax::before { border-color: var(--ax); color: var(--ax); }
+ol.steps li.shop::before { border-color: var(--shop); color: var(--shop); }
+ol.steps li.both::before { border-color: var(--accent); color: var(--accent); }
+ol.steps h3 { padding-top: 4px; }
+ol.steps p { color: var(--ink); max-width: 68ch; }
+ol.steps .where { font: 0.8rem/1.4 var(--f-mono); color: var(--muted); margin-top: 4px; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.grid2 > * { min-width: 0; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font: 600 0.72rem/1.2 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.n { text-align: right; font-family: var(--f-mono); }
+td.mode { font-size: 0.8rem; color: var(--muted); }
+td.mode.append { color: var(--accent); font-weight: 600; }
+tr.gap td { background: var(--warn-bg); }
+caption { caption-side: top; text-align: left; padding: 12px 12px 4px; font: 600 0.95rem var(--f-display); }
+
+.finding { border-left: 4px solid var(--accent); background: var(--warn-bg); padding: 16px 18px; border-radius: 0 10px 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.finding h3 { font-weight: 700; }
+
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar { display: grid; grid-template-columns: 170px 1fr 96px; gap: 10px; align-items: center; font-size: 0.88rem; }
+.bar .track { height: 12px; background: var(--code-bg); border-radius: 3px; position: relative; overflow: hidden; }
+.bar .fill { position: absolute; top: 0; bottom: 0; background: var(--ax); border-radius: 3px; }
+.bar.stopped .fill { background: var(--accent); }
+.bar .dates { font: 0.75rem var(--f-mono); color: var(--muted); text-align: right; }
+.axis { display: grid; grid-template-columns: 170px 1fr 96px; gap: 10px; font: 0.72rem var(--f-mono); color: var(--muted); }
+.axis div:nth-child(2) { display: flex; justify-content: space-between; }
+
+.cmd { display: flex; align-items: stretch; background: var(--code-bg); border-radius: 8px; overflow: hidden; }
+.cmd pre { margin: 0; padding: 12px 14px; flex: 1; overflow-x: auto; font: 0.85rem/1.5 var(--f-mono); min-width: 0; }
+.cmd button { border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font: 600 0.75rem var(--f-mono); padding: 0 14px; cursor: pointer; }
+.cmd button:hover { color: var(--ink); }
+.cmd button:focus-visible { outline: 2px solid var(--ax); outline-offset: -2px; }
+.cmds { display: flex; flex-direction: column; gap: 10px; }
+.cmds .label { font-size: 0.88rem; color: var(--muted); }
+
+ul.tests { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+ul.tests li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; min-width: 0; }
+ul.tests li b { display: block; font: 600 0.8rem/1.4 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+
+.open { display: flex; flex-direction: column; gap: 12px; }
+.open > div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; }
+.open .tag { font: 600 0.72rem var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+
+@media (max-width: 560px) {
+  .bar, .axis { grid-template-columns: 96px 1fr 0; }
+  .bar .dates { display: none; }
+  .open > div { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .flow-dot { animation: travel 4s linear infinite; }
+}
+@keyframes travel { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <a class="back" href="index.html">← All tours</a>
+  <div class="eyebrow">Pulse · phase 1 · branch phase-1-lab</div>
+  <h1>Pulse sync tour</h1>
+  <p class="prose">A tour of what issues #6 and #7 added: Pulse now copies the AX 2009 emulator and the Shopify dev store into Postgres every 15 minutes. Every number on this page comes from a real run on 25 November 2026 at 10:41 UTC.</p>
+  <div class="meta">
+    <span class="chip ok">25 / 25 tests pass</span>
+    <span class="chip ok">Live run: both syncs finished</span>
+    <span class="chip pending">Not committed yet</span>
+  </div>
+</header>
+
+<section>
+  <div class="eyebrow">The picture</div>
+  <h2>Two sources, one database</h2>
+  <p class="prose">Each source has its own worker inside <code>Pulse.Api</code>. Each worker reads everything from its source, then writes all of it to Postgres in a single step. Most tables are replaced on each run. Stock is appended, so its history builds up. The dashed boxes are what comes next.</p>
+  <div class="figure" role="img" aria-label="Diagram: AX 2009 and Shopify feed two sync workers in Pulse.Api, which write raw_ax and raw_shopify in Postgres. Core views, the MCP server and Claude are the next steps.">
+    <svg viewBox="0 0 980 430" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans, system-ui, sans-serif">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/>
+        </marker>
+        <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+        </marker>
+        <marker id="arrN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--next)"/>
+        </marker>
+      </defs>
+
+      <!-- Sources -->
+      <rect x="20" y="40" width="200" height="150" rx="8" fill="var(--surface)" stroke="var(--ax)" stroke-width="2"/>
+      <text x="36" y="66" font-weight="700" font-size="15" fill="var(--ax)">AX 2009 emulator</text>
+      <text x="36" y="86" font-size="12" fill="var(--muted)" font-family="JetBrains Mono, monospace">SQL Server · :1433</text>
+      <text x="36" y="112" font-size="12" fill="var(--ink)" font-family="JetBrains Mono, monospace">INVENTTABLE  INVENTDIM</text>
+      <text x="36" y="130" font-size="12" fill="var(--ink)" font-family="JetBrains Mono, monospace">PRICEDISCTABLE</text>
+      <text x="36" y="148" font-size="12" fill="var(--ink)" font-family="JetBrains Mono, monospace">CUSTTABLE  SALESTABLE</text>
+      <text x="36" y="166" font-size="12" fill="var(--ink)" font-family="JetBrains Mono, monospace">SALESLINE  <tspan fill="var(--accent)" font-weight="600">INVENTSUM</tspan></text>
+
+      <rect x="20" y="240" width="200" height="130" rx="8" fill="var(--surface)" stroke="var(--shop)" stroke-width="2"/>
+      <text x="36" y="266" font-weight="700" font-size="15" fill="var(--shop)">Shopify dev store</text>
+      <text x="36" y="286" font-size="12" fill="var(--muted)" font-family="JetBrains Mono, monospace">Admin GraphQL 2026-10</text>
+      <text x="36" y="312" font-size="12" fill="var(--ink)" font-family="JetBrains Mono, monospace">products · variants</text>
+      <text x="36" y="330" font-size="12" fill="var(--accent)" font-weight="600" font-family="JetBrains Mono, monospace">inventory levels</text>
+      <text x="36" y="348" font-size="12" fill="var(--ink)" font-family="JetBrains Mono, monospace">orders · line items</text>
+
+      <!-- Pulse.Api -->
+      <rect x="290" y="40" width="230" height="330" rx="10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="306" y="66" font-weight="700" font-size="15" fill="var(--ink)">Pulse.Api</text>
+      <text x="306" y="84" font-size="12" fill="var(--muted)">two BackgroundServices</text>
+
+      <rect x="306" y="98" width="198" height="84" rx="6" fill="var(--surface)" stroke="var(--ax)"/>
+      <text x="320" y="122" font-size="13" font-weight="600" fill="var(--ink)" font-family="JetBrains Mono, monospace">AxSync</text>
+      <text x="320" y="142" font-size="12" fill="var(--muted)">reads company “pul”</text>
+      <text x="320" y="160" font-size="12" fill="var(--muted)">binary COPY into Postgres</text>
+
+      <rect x="306" y="226" width="198" height="104" rx="6" fill="var(--surface)" stroke="var(--shop)"/>
+      <text x="320" y="250" font-size="13" font-weight="600" fill="var(--ink)" font-family="JetBrains Mono, monospace">ShopifySync</text>
+      <text x="320" y="270" font-size="12" fill="var(--muted)">token renewed before 24 h</text>
+      <text x="320" y="288" font-size="12" fill="var(--muted)">follows page cursors</text>
+      <text x="320" y="306" font-size="12" fill="var(--muted)">fails loudly on missed pages</text>
+
+      <text x="405" y="206" text-anchor="middle" font-size="12" font-weight="600" fill="var(--accent)" font-family="JetBrains Mono, monospace">⟳ every 15 min</text>
+
+      <line x1="220" y1="140" x2="304" y2="140" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="220" y1="290" x2="304" y2="290" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Postgres -->
+      <rect x="590" y="40" width="210" height="330" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="606" y="66" font-weight="700" font-size="15" fill="var(--ink)">Postgres</text>
+      <text x="606" y="84" font-size="12" fill="var(--muted)" font-family="JetBrains Mono, monospace">pulse · :5432</text>
+
+      <text x="606" y="114" font-size="13" font-weight="600" fill="var(--ax)" font-family="JetBrains Mono, monospace">raw_ax</text>
+      <text x="606" y="134" font-size="12" fill="var(--ink)">6 tables · replaced</text>
+      <text x="606" y="152" font-size="12" fill="var(--accent)" font-weight="600">stock_snapshots · appended</text>
+
+      <text x="606" y="242" font-size="13" font-weight="600" fill="var(--shop)" font-family="JetBrains Mono, monospace">raw_shopify</text>
+      <text x="606" y="262" font-size="12" fill="var(--ink)">products, variants · replaced</text>
+      <text x="606" y="280" font-size="12" fill="var(--ink)">orders, lines · kept, updated</text>
+      <text x="606" y="298" font-size="12" fill="var(--accent)" font-weight="600">stock_snapshots · appended</text>
+
+      <line x1="504" y1="134" x2="588" y2="134" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="504" y1="152" x2="588" y2="152" stroke="var(--accent)" stroke-width="3" marker-end="url(#arrA)"/>
+      <line x1="504" y1="270" x2="588" y2="270" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="504" y1="298" x2="588" y2="298" stroke="var(--accent)" stroke-width="3" marker-end="url(#arrA)"/>
+
+      <!-- Next -->
+      <rect x="850" y="60" width="110" height="70" rx="8" fill="none" stroke="var(--next)" stroke-dasharray="5 4"/>
+      <text x="905" y="90" text-anchor="middle" font-size="13" font-weight="600" fill="var(--next)">core views</text>
+      <text x="905" y="110" text-anchor="middle" font-size="12" fill="var(--next)">#8 · join on SKU</text>
+
+      <rect x="850" y="170" width="110" height="70" rx="8" fill="none" stroke="var(--next)" stroke-dasharray="5 4"/>
+      <text x="905" y="200" text-anchor="middle" font-size="13" font-weight="600" fill="var(--next)">MCP server</text>
+      <text x="905" y="220" text-anchor="middle" font-size="12" fill="var(--next)">#9 · /mcp</text>
+
+      <rect x="850" y="280" width="110" height="70" rx="8" fill="none" stroke="var(--next)" stroke-dasharray="5 4"/>
+      <text x="905" y="320" text-anchor="middle" font-size="13" font-weight="600" fill="var(--next)">Claude</text>
+
+      <line x1="800" y1="95" x2="848" y2="95" stroke="var(--next)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrN)"/>
+      <line x1="905" y1="130" x2="905" y2="168" stroke="var(--next)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrN)"/>
+      <line x1="905" y1="240" x2="905" y2="278" stroke="var(--next)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrN)"/>
+
+      <text x="20" y="410" font-size="12" fill="var(--muted)">Each worker writes everything in one transaction: a failed run leaves the last good copy in place.</text>
+    </svg>
+  </div>
+  <div class="legend"><span class="l-replace">replaced on every run</span><span class="l-append">appended (history)</span><span class="l-next">next issues</span></div>
+</section>
+
+<section>
+  <div class="eyebrow">Step through one run</div>
+  <h2>What happens every 15 minutes</h2>
+  <ol class="steps">
+    <li class="both">
+      <h3>A worker wakes up</h3>
+      <p>Each source has its own <code>SyncWorker</code>. It runs once at startup and then on a 15-minute timer. A failed run is logged and tried again on the next tick, so one bad run doesn't stop the worker.</p>
+      <div class="where">src/Pulse.Api/Sync/SyncWorker.cs:17 · catch at :25</div>
+    </li>
+    <li class="ax">
+      <h3>AX: open both databases and one transaction</h3>
+      <p>It creates the <code>raw_ax</code> tables if they're missing, then opens one Postgres transaction that covers the whole run.</p>
+      <div class="where">src/Pulse.Api/Ax/AxSync.cs:34 · schema in Ax/raw_ax.sql</div>
+    </li>
+    <li class="ax">
+      <h3>AX: replace six tables for company “pul”</h3>
+      <p>For each table it deletes that company's rows in <code>raw_ax</code>, then streams the AX rows over with a binary COPY. Other companies' rows are left alone. AX stores times in UTC without marking them as UTC, so the sync marks them before writing.</p>
+      <div class="where">AxSync.cs:39 delete · :60 COPY · :68 UTC</div>
+    </li>
+    <li class="ax">
+      <h3>AX: append a stock snapshot</h3>
+      <p><code>INVENTSUM</code> only holds current stock, so it is added to <code>raw_ax.stock_snapshots</code>, stamped with this run's <code>synced_at</code>. This history is what the slow-stock analysis will read.</p>
+      <div class="where">AxSync.cs:47 · commit at :49</div>
+    </li>
+    <li class="shop">
+      <h3>Shopify: get a token if needed</h3>
+      <p>The client asks for a client-credentials token and remembers when it expires (<code>expires_in</code>: 86 399 s). It renews the token an hour before it runs out.</p>
+      <div class="where">src/Pulse.Api/Shopify/ShopifyClient.cs:20 · :52</div>
+    </li>
+    <li class="shop">
+      <h3>Shopify: read every page before writing</h3>
+      <p>The sync fetches all products, with their variants and stock levels, and all orders, following the cursor until the last page. The product query is priced at 478 of Shopify's 1000-point limit. If a product has more variants than one page holds, the run stops with an error instead of quietly skipping some.</p>
+      <div class="where">ShopifySync.cs:58 · :166 paging · :183 guard</div>
+    </li>
+    <li class="shop">
+      <h3>Shopify: write in one transaction</h3>
+      <p>Products and variants are replaced. Stock levels are appended to <code>raw_shopify.stock_snapshots</code>. Orders are updated in place, because without <code>read_all_orders</code> Shopify only returns the last 60 days, and replacing them would lose older orders. An order's lines are deleted and written again, because an edited order can lose lines.</p>
+      <div class="where">ShopifySync.cs:79 replace · :72 update in place · :145 lines · :162 commit</div>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <div class="eyebrow">Seen on a real run</div>
+  <h2>What landed in Postgres</h2>
+  <p class="prose">Counts after two runs, 48 minutes apart. The replaced tables stay the same size. The two snapshot tables have doubled, with one set of rows per run.</p>
+  <div class="grid2">
+    <div class="tbl">
+      <table>
+        <caption>raw_ax</caption>
+        <thead><tr><th>Table</th><th>Rows</th><th>Each run</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">inventtable</td><td class="n">30</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">inventdim</td><td class="n">2</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">pricedisctable</td><td class="n">35</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">custtable</td><td class="n">7</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">salestable</td><td class="n">345</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">salesline</td><td class="n">583</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">stock_snapshots</td><td class="n">116</td><td class="mode append">+58 per run</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl">
+      <table>
+        <caption>raw_shopify</caption>
+        <thead><tr><th>Table</th><th>Rows</th><th>Each run</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">products</td><td class="n">18</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">variants</td><td class="n">30</td><td class="mode">replaced</td></tr>
+          <tr><td class="mono">orders</td><td class="n">0</td><td class="mode">kept, updated</td></tr>
+          <tr><td class="mono">order_lines</td><td class="n">0</td><td class="mode">kept, updated</td></tr>
+          <tr><td class="mono">stock_snapshots</td><td class="n">60</td><td class="mode append">+30 per run</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="prose" style="color:var(--muted);font-size:0.9rem">Shopify has no orders because the app has no <code>write_orders</code> scope, so the seed tool can't create any. The order mapping is tested against two hand-written pages in Shopify's response format.</p>
+</section>
+
+<section>
+  <div class="eyebrow">What the data already shows</div>
+  <h2>Two things to look at</h2>
+
+  <div class="finding">
+    <h3>Shopify shows stock that AX has already promised to B2B customers</h3>
+    <p class="prose">AX holds back stock for open B2B orders. Shopify only knows the warehouse total. In 9 of 30 SKUs, the webshop offers more than AX has free. For <span class="mono">BERGEN-GRO</span>, the webshop says 2 while AX has 0 free. This is what the <code>core</code> views in #8 should bring out.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>SKU</th><th>Shopify available</th><th>AX available (warehouse)</th><th>Gap</th></tr></thead>
+      <tbody>
+        <tr class="gap"><td class="mono">BERGEN-GRO</td><td class="n">2</td><td class="n">0</td><td class="n">2</td></tr>
+        <tr><td class="mono">AURORA160-GRA</td><td class="n">8</td><td class="n">7</td><td class="n">1</td></tr>
+        <tr><td class="mono">AURORA180-GRA</td><td class="n">6</td><td class="n">5</td><td class="n">1</td></tr>
+        <tr><td class="mono">BERGEN-BLA</td><td class="n">3</td><td class="n">2</td><td class="n">1</td></tr>
+        <tr><td class="mono">OSLO3-NAT</td><td class="n">6</td><td class="n">5</td><td class="n">1</td></tr>
+        <tr><td class="mono">REOL80-EG</td><td class="n">14</td><td class="n">13</td><td class="n">1</td></tr>
+        <tr><td class="mono">RUND80-VAL</td><td class="n">9</td><td class="n">8</td><td class="n">1</td></tr>
+        <tr><td class="mono">SENGEBORD-GRA</td><td class="n">20</td><td class="n">19</td><td class="n">1</td></tr>
+        <tr><td class="mono">ULD200-GRA</td><td class="n">8</td><td class="n">7</td><td class="n">1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:12px">The churn pattern from the seed data survived the copy</h3>
+  <p class="prose">First and last AX order for each B2B customer, over the 18 months. Østby Kommune (10004) stops ordering in July, as the seed tool intended. The other customers order into October or November.</p>
+  <div class="bars" role="img" aria-label="Timeline of first and last order per customer, May 2025 to November 2026. Østby Kommune's last order is 7 July 2026; the others continue to October or November 2026.">
+    <div class="axis"><div></div><div><span>May 2025</span><span>Feb 2026</span><span>Nov 2026</span></div><div></div></div>
+    <!-- Scale: 2025-05-25 = 0 %, 2026-11-24 = 100 % (548 days). -->
+    <div class="bar"><span>10001 Nordlys</span><div class="track"><div class="fill" style="left:3.8%;right:2.9%"></div></div><span class="dates">Jun 25 – Nov 26</span></div>
+    <div class="bar"><span>10002 Hav &amp; Hus</span><div class="track"><div class="fill" style="left:4.0%;right:3.3%"></div></div><span class="dates">Jun 25 – Nov 26</span></div>
+    <div class="bar"><span>10003 Fjordgården</span><div class="track"><div class="fill" style="left:13.3%;right:6.2%"></div></div><span class="dates">Aug 25 – Oct 26</span></div>
+    <div class="bar stopped"><span>10004 Østby Kommune</span><div class="track"><div class="fill" style="left:2.9%;right:25.4%"></div></div><span class="dates">Jun 25 – Jul 26</span></div>
+    <div class="bar"><span>10005 Kontorhuset</span><div class="track"><div class="fill" style="left:2.2%;right:7.1%"></div></div><span class="dates">Jun 25 – Oct 26</span></div>
+    <div class="bar"><span>10006 Tryghed</span><div class="track"><div class="fill" style="left:4.0%;right:2.2%"></div></div><span class="dates">Jun 25 – Nov 26</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Run it yourself</div>
+  <h2>Try it on your machine</h2>
+  <div class="cmds">
+    <span class="label">Start the databases, then the API. Both syncs run right away.</span>
+    <div class="cmd"><pre>docker compose up -d
+dotnet run --project src/Pulse.Api</pre><button type="button" data-copy>Copy</button></div>
+    <span class="label">Look at the snapshots growing, one set of rows per run:</span>
+    <div class="cmd"><pre>docker exec pulse-postgres-1 psql -U pulse -d pulse -c "SELECT synced_at, count(*) FROM raw_ax.stock_snapshots GROUP BY 1 ORDER BY 1;"</pre><button type="button" data-copy>Copy</button></div>
+    <span class="label">Compare Shopify and AX stock for the latest run:</span>
+    <div class="cmd"><pre>docker exec pulse-postgres-1 psql -U pulse -d pulse -c "
+SELECT v.sku, s.available AS shopify, a.availphysical::int AS ax
+FROM raw_shopify.variants v
+JOIN raw_shopify.stock_snapshots s ON s.sku = v.sku
+ AND s.synced_at = (SELECT max(synced_at) FROM raw_shopify.stock_snapshots)
+JOIN raw_ax.stock_snapshots a ON a.itemid = v.sku AND a.inventdimid = 'DIM-LAGER'
+ AND a.synced_at = (SELECT max(synced_at) FROM raw_ax.stock_snapshots)
+ORDER BY 1;"</pre><button type="button" data-copy>Copy</button></div>
+    <span class="label">Run the tests (they start their own containers):</span>
+    <div class="cmd"><pre>dotnet test</pre><button type="button" data-copy>Copy</button></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">What the 8 new tests prove</div>
+  <h2>Tests</h2>
+  <ul class="tests">
+    <li><b>AxSyncTests.Copies_every_table</b>Every table has the same row count in AX and raw_ax, and the line totals match.</li>
+    <li><b>AxSyncTests.Rerunning_appends_stock_and_replaces_the_rest</b>Two runs: snapshots double, with two distinct synced_at values. Order lines don't duplicate.</li>
+    <li><b>AxSyncTests.Copies_only_the_configured_company</b>A second company in AX never reaches raw_ax.</li>
+    <li><b>ShopifySyncTests.Copies_the_catalogue_with_skus_and_barcodes</b>All 18 products. Every SKU's barcode matches the seed catalogue's GTIN.</li>
+    <li><b>ShopifySyncTests.Snapshots_stock_per_sku</b>Each SKU's recorded stock matches the catalogue.</li>
+    <li><b>ShopifySyncTests.Reads_every_order_page</b>Follows the cursor to page two, and handles a guest order and a cancelled order.</li>
+    <li><b>ShopifySyncTests.Rerunning_appends_stock_and_replaces_the_rest</b>Orders are updated in place, not duplicated. Stock is appended.</li>
+    <li><b>ShopifyClientTests.Reuses_the_token_until_an_hour_before_it_expires</b>One token for 22 h. A new one at 23 h, using a fake clock.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="eyebrow">Still open</div>
+  <h2>Decisions for you</h2>
+  <div class="open">
+    <div><span class="tag">Now</span><p>Commit and push <code>phase-1-lab</code>: one commit per issue, or one closing both?</p></div>
+    <div><span class="tag">Before real AX</span><p>AX is read in full every 15 minutes. That's fine for the lab, but the real AX (#3) will probably need to read only changed rows.</p></div>
+    <div><span class="tag">For #8</span><p>Which stock should the webshop trust: AX's free stock or Shopify's total? The gap above is the case to decide.</p></div>
+    <div><span class="tag">Tidy-up</span><p>The seed tool and the API each have their own Shopify client. A shared one is possible once the API's version has settled.</p></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(button => {
+  button.addEventListener('click', () => {
+    const text = button.parentElement.querySelector('pre').textContent;
+    const done = () => { button.textContent = 'Copied'; setTimeout(() => (button.textContent = 'Copy'), 1500); };
+    const fallback = () => {
+      const range = document.createRange();
+      range.selectNodeContents(button.parentElement.querySelector('pre'));
+      const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      button.textContent = 'Press Ctrl+C';
+    };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+  });
+});
+</script>
+
+</body>
+</html>
