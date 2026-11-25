@@ -1,0 +1,28 @@
+{
+ "data": {
+  "orders": {
+   "pageInfo": { "hasNextPage": true, "endCursor": "cursor-1" },
+   "nodes": [
+    {
+     "id": "gid://shopify/Order/1001",
+     "name": "#1001",
+     "createdAt": "2026-11-20T10:15:00Z",
+     "updatedAt": "2026-11-20T10:16:00Z",
+     "cancelledAt": null,
+     "displayFinancialStatus": "PAID",
+     "displayFulfillmentStatus": "UNFULFILLED",
+     "currencyCode": "DKK",
+     "customer": { "id": "gid://shopify/Customer/501" },
+     "totalPriceSet": { "shopMoney": { "amount": "16585.0" } },
+     "lineItems": {
+      "pageInfo": { "hasNextPage": false },
+      "nodes": [
+       { "id": "gid://shopify/LineItem/9001", "sku": "OSLO3-NAT", "quantity": 1, "variant": { "id": "gid://shopify/ProductVariant/57979634745670" }, "originalUnitPriceSet": { "shopMoney": { "amount": "12995.0" } } },
+       { "id": "gid://shopify/LineItem/9002", "sku": "ELLA-NAT", "quantity": 2, "variant": null, "originalUnitPriceSet": { "shopMoney": { "amount": "1795.0" } } }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

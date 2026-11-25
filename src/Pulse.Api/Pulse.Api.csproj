@@ -7,4 +7,14 @@
     <UserSecretsId>779246af-b9e9-4cd4-b039-3ed7f2774407</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.2" />
+    <PackageReference Include="Npgsql" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Schema scripts for the raw_* tables, run by each sync before it writes. -->
+    <EmbeddedResource Include="**/*.sql" />
+  </ItemGroup>
+
 </Project>

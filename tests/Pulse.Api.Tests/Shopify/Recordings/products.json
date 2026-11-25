@@ -1,0 +1,1451 @@
+{
+ "data": {
+  "products": {
+   "pageInfo": {
+    "hasNextPage": false,
+    "endCursor": "eyJsYXN0X2lkIjoxNTg3NjY3MzE3NTg3OCwibGFzdF92YWx1ZSI6IjE1ODc2NjczMTc1ODc4In0="
+   },
+   "nodes": [
+    {
+     "id": "gid://shopify/Product/15876672520518",
+     "handle": "sofa-oslo-3-pers",
+     "title": "Sofa Oslo 3-pers.",
+     "vendor": "Nordhus",
+     "productType": "Sofa",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:07Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979634745670",
+        "sku": "OSLO3-NAT",
+        "barcode": "2069604585335",
+        "price": "12995.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:04Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675248992582",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 6
+             },
+             {
+              "name": "on_hand",
+              "quantity": 6
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979634778438",
+        "sku": "OSLO3-GRA",
+        "barcode": "2051251817594",
+        "price": "12995.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:04Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249025350",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 4
+             },
+             {
+              "name": "on_hand",
+              "quantity": 4
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672553286",
+     "handle": "sofa-oslo-2-pers",
+     "title": "Sofa Oslo 2-pers.",
+     "vendor": "Nordhus",
+     "productType": "Sofa",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:15Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979634811206",
+        "sku": "OSLO2-NAT",
+        "barcode": "2012876820000",
+        "price": "9995.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:05Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249058118",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 5
+             },
+             {
+              "name": "on_hand",
+              "quantity": 5
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979634843974",
+        "sku": "OSLO2-GRA",
+        "barcode": "2013237900331",
+        "price": "9995.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:05Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249090886",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 3
+             },
+             {
+              "name": "on_hand",
+              "quantity": 3
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672586054",
+     "handle": "hjoernesofa-bergen",
+     "title": "Hjørnesofa Bergen",
+     "vendor": "Fjord & Co",
+     "productType": "Sofa",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:16Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979634876742",
+        "sku": "BERGEN-GRO",
+        "barcode": "2098960431468",
+        "price": "18995.00",
+        "title": "Grøn",
+        "updatedAt": "2026-11-24T13:31:05Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249123654",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 2
+             },
+             {
+              "name": "on_hand",
+              "quantity": 2
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979634909510",
+        "sku": "BERGEN-BLA",
+        "barcode": "2026151920378",
+        "price": "18995.00",
+        "title": "Blå",
+        "updatedAt": "2026-11-24T13:31:05Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249156422",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 3
+             },
+             {
+              "name": "on_hand",
+              "quantity": 3
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672618822",
+     "handle": "kontinentalseng-aurora-160",
+     "title": "Kontinentalseng Aurora 160x200",
+     "vendor": "Lund Design",
+     "productType": "Seng",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:11Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979634975046",
+        "sku": "AURORA160-GRA",
+        "barcode": "2077810122138",
+        "price": "14995.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:06Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249221958",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 8
+             },
+             {
+              "name": "on_hand",
+              "quantity": 8
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979635007814",
+        "sku": "AURORA160-SAN",
+        "barcode": "2027830572451",
+        "price": "14995.00",
+        "title": "Sand",
+        "updatedAt": "2026-11-24T13:31:06Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249254726",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 5
+             },
+             {
+              "name": "on_hand",
+              "quantity": 5
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672651590",
+     "handle": "kontinentalseng-aurora-180",
+     "title": "Kontinentalseng Aurora 180x200",
+     "vendor": "Lund Design",
+     "productType": "Seng",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:16Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979635040582",
+        "sku": "AURORA180-GRA",
+        "barcode": "2018052253235",
+        "price": "16995.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:06Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249287494",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 6
+             },
+             {
+              "name": "on_hand",
+              "quantity": 6
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979635073350",
+        "sku": "AURORA180-SAN",
+        "barcode": "2032529578720",
+        "price": "16995.00",
+        "title": "Sand",
+        "updatedAt": "2026-11-24T13:31:06Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249320262",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 4
+             },
+             {
+              "name": "on_hand",
+              "quantity": 4
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672684358",
+     "handle": "boxmadras-hotel-90",
+     "title": "Boxmadras Hotel 90x200",
+     "vendor": "Lund Design",
+     "productType": "Seng",
+     "status": "DRAFT",
+     "updatedAt": "2026-11-24T13:31:48Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979635106118",
+        "sku": "HOTEL90-HVI",
+        "barcode": "2098612993023",
+        "price": "4995.00",
+        "title": "Hvid",
+        "updatedAt": "2026-11-24T13:31:07Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249353030",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 40
+             },
+             {
+              "name": "on_hand",
+              "quantity": 40
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672749894",
+     "handle": "sengebord-aurora",
+     "title": "Sengebord Aurora",
+     "vendor": "Lund Design",
+     "productType": "Seng",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:16Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979635499334",
+        "sku": "SENGEBORD-GRA",
+        "barcode": "2032755756978",
+        "price": "1495.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:08Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249746246",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 20
+             },
+             {
+              "name": "on_hand",
+              "quantity": 20
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979635532102",
+        "sku": "SENGEBORD-SAN",
+        "barcode": "2008722386646",
+        "price": "1495.00",
+        "title": "Sand",
+        "updatedAt": "2026-11-24T13:31:08Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249779014",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 16
+             },
+             {
+              "name": "on_hand",
+              "quantity": 16
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672782662",
+     "handle": "spisebord-eg-200",
+     "title": "Spisebord Eg 200 cm",
+     "vendor": "Nordhus",
+     "productType": "Bord",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:15Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979635564870",
+        "sku": "EG200-NAT",
+        "barcode": "2036996737819",
+        "price": "11995.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:08Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249811782",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 4
+             },
+             {
+              "name": "on_hand",
+              "quantity": 4
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979635597638",
+        "sku": "EG200-SOR",
+        "barcode": "2012415075595",
+        "price": "11995.00",
+        "title": "Sortbejdset",
+        "updatedAt": "2026-11-24T13:31:08Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675249844550",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 3
+             },
+             {
+              "name": "on_hand",
+              "quantity": 3
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672848198",
+     "handle": "sofabord-rund-80",
+     "title": "Sofabord Rund Ø80",
+     "vendor": "Fjord & Co",
+     "productType": "Bord",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:15Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636154694",
+        "sku": "RUND80-VAL",
+        "barcode": "2033507498832",
+        "price": "3495.00",
+        "title": "Valnød",
+        "updatedAt": "2026-11-24T13:31:09Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250401606",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 9
+             },
+             {
+              "name": "on_hand",
+              "quantity": 9
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672880966",
+     "handle": "spisebordsstol-ella",
+     "title": "Spisebordsstol Ella",
+     "vendor": "Nordhus",
+     "productType": "Stol",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:19Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636187462",
+        "sku": "ELLA-NAT",
+        "barcode": "2076991898689",
+        "price": "1795.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:09Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250434374",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 48
+             },
+             {
+              "name": "on_hand",
+              "quantity": 48
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979636220230",
+        "sku": "ELLA-SOR",
+        "barcode": "2060233167695",
+        "price": "1795.00",
+        "title": "Sort",
+        "updatedAt": "2026-11-24T13:31:09Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250467142",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 32
+             },
+             {
+              "name": "on_hand",
+              "quantity": 32
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672913734",
+     "handle": "loungestol-boucle",
+     "title": "Loungestol Bouclé",
+     "vendor": "Fjord & Co",
+     "productType": "Stol",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:22Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636252998",
+        "sku": "LOUNGE-NAT",
+        "barcode": "2014583197031",
+        "price": "5995.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:10Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250499910",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 3
+             },
+             {
+              "name": "on_hand",
+              "quantity": 3
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672946502",
+     "handle": "kontorstol-flex",
+     "title": "Kontorstol Flex",
+     "vendor": "Lund Design",
+     "productType": "Stol",
+     "status": "DRAFT",
+     "updatedAt": "2026-11-24T13:31:49Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636285766",
+        "sku": "FLEX-SOR",
+        "barcode": "2051199065002",
+        "price": "3495.00",
+        "title": "Sort",
+        "updatedAt": "2026-11-24T13:31:10Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250532678",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 60
+             },
+             {
+              "name": "on_hand",
+              "quantity": 60
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876672979270",
+     "handle": "reol-modul-80",
+     "title": "Reol Modul 80 cm",
+     "vendor": "Lund Design",
+     "productType": "Opbevaring",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:26Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636318534",
+        "sku": "REOL80-EG",
+        "barcode": "2084423385683",
+        "price": "2995.00",
+        "title": "Eg",
+        "updatedAt": "2026-11-24T13:31:11Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250565446",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 14
+             },
+             {
+              "name": "on_hand",
+              "quantity": 14
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979636351302",
+        "sku": "REOL80-HVI",
+        "barcode": "2078509418785",
+        "price": "2995.00",
+        "title": "Hvid",
+        "updatedAt": "2026-11-24T13:31:11Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250598214",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 35
+             },
+             {
+              "name": "on_hand",
+              "quantity": 35
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876673012038",
+     "handle": "tv-bord-linje-180",
+     "title": "TV-bord Linje 180",
+     "vendor": "Lund Design",
+     "productType": "Opbevaring",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:26Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636416838",
+        "sku": "LINJE180-EG",
+        "barcode": "2037130752873",
+        "price": "3995.00",
+        "title": "Eg",
+        "updatedAt": "2026-11-24T13:31:12Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250663750",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 7
+             },
+             {
+              "name": "on_hand",
+              "quantity": 7
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876673044806",
+     "handle": "kommode-linje",
+     "title": "Kommode Linje",
+     "vendor": "Lund Design",
+     "productType": "Opbevaring",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:21Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636449606",
+        "sku": "KOMMODE-EG",
+        "barcode": "2068813249472",
+        "price": "4495.00",
+        "title": "Eg",
+        "updatedAt": "2026-11-24T13:31:12Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250696518",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 6
+             },
+             {
+              "name": "on_hand",
+              "quantity": 6
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979636482374",
+        "sku": "KOMMODE-HVI",
+        "barcode": "2072357872782",
+        "price": "4495.00",
+        "title": "Hvid",
+        "updatedAt": "2026-11-24T13:31:12Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250729286",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 5
+             },
+             {
+              "name": "on_hand",
+              "quantity": 5
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876673077574",
+     "handle": "gulvlampe-glob",
+     "title": "Gulvlampe Glob",
+     "vendor": "Fjord & Co",
+     "productType": "Belysning",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:25Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636515142",
+        "sku": "GLOB-MES",
+        "barcode": "2088748314892",
+        "price": "2495.00",
+        "title": "Messing",
+        "updatedAt": "2026-11-24T13:31:13Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250762054",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 42
+             },
+             {
+              "name": "on_hand",
+              "quantity": 42
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876673110342",
+     "handle": "taeppe-uld-200x300",
+     "title": "Tæppe Uld 200x300",
+     "vendor": "Nordhus",
+     "productType": "Tekstil",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:17Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636547910",
+        "sku": "ULD200-NAT",
+        "barcode": "2084549972972",
+        "price": "4995.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:14Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250794822",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 10
+             },
+             {
+              "name": "on_hand",
+              "quantity": 10
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979636580678",
+        "sku": "ULD200-GRA",
+        "barcode": "2057649422562",
+        "price": "4995.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:14Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250827590",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 8
+             },
+             {
+              "name": "on_hand",
+              "quantity": 8
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "id": "gid://shopify/Product/15876673175878",
+     "handle": "pyntepude-boucle",
+     "title": "Pyntepude Bouclé 50x50",
+     "vendor": "Fjord & Co",
+     "productType": "Tekstil",
+     "status": "ACTIVE",
+     "updatedAt": "2026-11-24T13:31:25Z",
+     "variants": {
+      "pageInfo": {
+       "hasNextPage": false
+      },
+      "nodes": [
+       {
+        "id": "gid://shopify/ProductVariant/57979636646214",
+        "sku": "PUDE-NAT",
+        "barcode": "2096234787129",
+        "price": "349.00",
+        "title": "Natur",
+        "updatedAt": "2026-11-24T13:31:14Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250893126",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 70
+             },
+             {
+              "name": "on_hand",
+              "quantity": 70
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       },
+       {
+        "id": "gid://shopify/ProductVariant/57979636678982",
+        "sku": "PUDE-GRA",
+        "barcode": "2007144956253",
+        "price": "349.00",
+        "title": "Grå",
+        "updatedAt": "2026-11-24T13:31:14Z",
+        "inventoryItem": {
+         "id": "gid://shopify/InventoryItem/57675250925894",
+         "inventoryLevels": {
+          "pageInfo": {
+           "hasNextPage": false
+          },
+          "nodes": [
+           {
+            "location": {
+             "id": "gid://shopify/Location/118660792646",
+             "name": "Shop location"
+            },
+            "quantities": [
+             {
+              "name": "available",
+              "quantity": 55
+             },
+             {
+              "name": "on_hand",
+              "quantity": 55
+             },
+             {
+              "name": "committed",
+              "quantity": 0
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "extensions": {
+  "cost": {
+   "requestedQueryCost": 478,
+   "actualQueryCost": 13,
+   "throttleStatus": {
+    "maximumAvailable": 4000.0,
+    "currentlyAvailable": 3987,
+    "restoreRate": 200.0
+   }
+  }
+ }
+}

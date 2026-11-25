@@ -1,0 +1,27 @@
+{
+ "data": {
+  "orders": {
+   "pageInfo": { "hasNextPage": false, "endCursor": "cursor-2" },
+   "nodes": [
+    {
+     "id": "gid://shopify/Order/1002",
+     "name": "#1002",
+     "createdAt": "2026-11-22T14:02:00Z",
+     "updatedAt": "2026-11-23T09:00:00Z",
+     "cancelledAt": "2026-11-23T09:00:00Z",
+     "displayFinancialStatus": "REFUNDED",
+     "displayFulfillmentStatus": "UNFULFILLED",
+     "currencyCode": "DKK",
+     "customer": null,
+     "totalPriceSet": { "shopMoney": { "amount": "349.0" } },
+     "lineItems": {
+      "pageInfo": { "hasNextPage": false },
+      "nodes": [
+       { "id": "gid://shopify/LineItem/9003", "sku": "PUDE-NAT", "quantity": 1, "variant": { "id": "gid://shopify/ProductVariant/1" }, "originalUnitPriceSet": { "shopMoney": { "amount": "349.0" } } }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

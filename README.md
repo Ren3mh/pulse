@@ -40,6 +40,11 @@ dotnet run --project src/Pulse.Api
 dotnet test
 ```
 
+`Pulse.Api` copies AX and Shopify into Postgres at startup and then every
+15 minutes: `raw_ax.*` mirrors the AX tables, `raw_shopify.*` the webshop.
+Stock is appended to each schema's `stock_snapshots` rather than replaced,
+so its history builds up. Without Shopify credentials only AX is synced.
+
 Shopify credentials live in user-secrets, never in git:
 
 ```sh

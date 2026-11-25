@@ -9,7 +9,7 @@ public class HealthTests(WebApplicationFactory<Program> factory)
     [Fact]
     public async Task Health_returns_ok()
     {
-        var client = factory.CreateClient();
+        var client = factory.WithWebHostBuilder(b => b.UseSetting("Sync:Enabled", "false")).CreateClient();
 
         var response = await client.GetAsync("/health");
 
