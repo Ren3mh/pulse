@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Core Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; the diagram and tables break wider. Blueprint
+   neutrals with a timber accent for stock, the thing both systems count. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #17202e;
+  --muted: #5a6577;
+  --line: #d5dae3;
+  --accent: #b5651d;      /* stock / snapshots */
+  --ax: #2f5d8a;          /* AX side */
+  --shop: #4f7a3a;        /* Shopify side */
+  --next: #8a8fa0;        /* not built yet */
+  --warn-bg: #fbf1e4;
+  --code-bg: #eef1f5;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181e28; --ink: #e6e9ef; --muted: #9aa4b5; --line: #2c3442;
+    --accent: #e09a52; --ax: #7aa7d6; --shop: #93c07a; --next: #6f7586;
+    --warn-bg: #2a2117; --code-bg: #1f2632; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181e28; --ink: #e6e9ef; --muted: #9aa4b5; --line: #2c3442;
+  --accent: #e09a52; --ax: #7aa7d6; --shop: #93c07a; --next: #6f7586;
+  --warn-bg: #2a2117; --code-bg: #1f2632; color-scheme: dark;
+}
+
+html { color-scheme: light; }
+@media (prefers-color-scheme: dark) { html { color-scheme: dark; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap {
+  max-width: 980px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 56px;
+}
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 500; }
+p { margin: 0; }
+section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.eyebrow { font: 600 0.75rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+code, .mono { font-family: var(--f-mono); font-size: 0.88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+a { color: var(--ax); }
+.back { font: 500 0.85rem var(--f-mono); color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--ink); }
+
+header { display: flex; flex-direction: column; gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.8rem/1 var(--f-mono); padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.chip.ok { border-color: var(--shop); color: var(--shop); }
+.chip.pending { border-color: var(--accent); color: var(--accent); }
+
+.figure { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.figure svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.85rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+.legend .l-replace::before { border-color: var(--ink); }
+.legend .l-append::before { border-color: var(--accent); border-top-width: 3px; }
+.legend .l-next::before { border-color: var(--next); border-top-style: dashed; }
+
+ol.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; counter-reset: step; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 44px 1fr; gap: 0 14px; position: relative; padding-bottom: 22px; }
+ol.steps li::before {
+  content: counter(step); grid-row: 1 / span 3; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; font: 600 0.9rem/1 var(--f-mono);
+  background: var(--surface); border: 2px solid var(--ink); z-index: 1;
+}
+ol.steps li::after { content: ""; position: absolute; left: 15px; top: 34px; bottom: 0; border-left: 2px solid var(--line); }
+ol.steps li:last-child::after { display: none; }
+ol.steps li.ax::before { border-color: var(--ax); color: var(--ax); }
+ol.steps li.shop::before { border-color: var(--shop); color: var(--shop); }
+ol.steps li.both::before { border-color: var(--accent); color: var(--accent); }
+ol.steps h3 { padding-top: 4px; }
+ol.steps p { color: var(--ink); max-width: 68ch; }
+ol.steps .where { font: 0.8rem/1.4 var(--f-mono); color: var(--muted); margin-top: 4px; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.grid2 > * { min-width: 0; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font: 600 0.72rem/1.2 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.n { text-align: right; font-family: var(--f-mono); }
+td.mode { font-size: 0.8rem; color: var(--muted); }
+td.mode.append { color: var(--accent); font-weight: 600; }
+tr.gap td { background: var(--warn-bg); }
+caption { caption-side: top; text-align: left; padding: 12px 12px 4px; font: 600 0.95rem var(--f-display); }
+
+.finding { border-left: 4px solid var(--accent); background: var(--warn-bg); padding: 16px 18px; border-radius: 0 10px 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.finding h3 { font-weight: 700; }
+
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar { display: grid; grid-template-columns: 170px 1fr 96px; gap: 10px; align-items: center; font-size: 0.88rem; }
+.bar .track { height: 12px; background: var(--code-bg); border-radius: 3px; position: relative; overflow: hidden; }
+.bar .fill { position: absolute; top: 0; bottom: 0; background: var(--ax); border-radius: 3px; }
+.bar.stopped .fill { background: var(--accent); }
+.bar .dates { font: 0.75rem var(--f-mono); color: var(--muted); text-align: right; }
+.axis { display: grid; grid-template-columns: 170px 1fr 96px; gap: 10px; font: 0.72rem var(--f-mono); color: var(--muted); }
+.axis div:nth-child(2) { display: flex; justify-content: space-between; }
+
+.cmd { display: flex; align-items: stretch; background: var(--code-bg); border-radius: 8px; overflow: hidden; }
+.cmd pre { margin: 0; padding: 12px 14px; flex: 1; overflow-x: auto; font: 0.85rem/1.5 var(--f-mono); min-width: 0; }
+.cmd button { border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font: 600 0.75rem var(--f-mono); padding: 0 14px; cursor: pointer; }
+.cmd button:hover { color: var(--ink); }
+.cmd button:focus-visible { outline: 2px solid var(--ax); outline-offset: -2px; }
+.cmds { display: flex; flex-direction: column; gap: 10px; }
+.cmds .label { font-size: 0.88rem; color: var(--muted); }
+
+ul.tests { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+ul.tests li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; min-width: 0; }
+ul.tests li b { display: block; font: 600 0.8rem/1.4 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+
+.open { display: flex; flex-direction: column; gap: 12px; }
+.open > div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; }
+.open .tag { font: 600 0.72rem var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+
+@media (max-width: 560px) {
+  .bar, .axis { grid-template-columns: 96px 1fr 0; }
+  .bar .dates { display: none; }
+  .open > div { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .flow-dot { animation: travel 4s linear infinite; }
+}
+@keyframes travel { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <a class="back" href="index.html">← All tours</a>
+  <div class="eyebrow">Pulse · phase 1 · branch phase-1-lab</div>
+  <h1>Pulse core tour</h1>
+  <p class="prose">A tour of what issue #8 added: one set of views in Postgres that combines AX and Shopify per SKU. The next step, the MCP server, will read only these views. Every number on this page comes from a real run on 25 November 2026.</p>
+  <div class="meta">
+    <span class="chip ok">36 / 36 tests pass</span>
+    <span class="chip ok">30 / 30 SKUs matched</span>
+    <span class="chip pending">Not committed yet</span>
+  </div>
+</header>
+
+<section>
+  <div class="eyebrow">The picture</div>
+  <h2>From two raw copies to one model</h2>
+  <p class="prose">The sync from the last tour copies each system as it is. The <code>core</code> views sit on top and are created when the API starts. <code>core.products</code> decides which AX item and which Shopify variant are the same product. The stock and order views use it to give Shopify rows the right SKU.</p>
+  <div class="figure" role="img" aria-label="Diagram: raw_ax and raw_shopify tables feed core.products, which matches on SKU then GTIN. core.stock_snapshots, core.stock, core.orders and core.order_lines read the raw tables and use core.products for Shopify SKUs. The MCP server will read core only.">
+    <svg viewBox="0 0 980 470" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans, system-ui, sans-serif">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker>
+        <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+        <marker id="arrN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--next)"/></marker>
+      </defs>
+
+      <!-- raw_ax -->
+      <rect x="20" y="30" width="200" height="200" rx="8" fill="var(--surface)" stroke="var(--ax)" stroke-width="2"/>
+      <text x="36" y="56" font-weight="700" font-size="15" fill="var(--ax)" font-family="JetBrains Mono, monospace">raw_ax</text>
+      <g font-size="12" font-family="JetBrains Mono, monospace" fill="var(--ink)">
+        <text x="36" y="82">inventtable</text>
+        <text x="36" y="100" fill="var(--accent)" font-weight="600">inventitembarcode ✦</text>
+        <text x="36" y="118">pricedisctable</text>
+        <text x="36" y="136">inventdim</text>
+        <text x="36" y="154">stock_snapshots</text>
+        <text x="36" y="172">salestable · salesline</text>
+        <text x="36" y="190">custtable</text>
+      </g>
+      <text x="36" y="216" font-size="11" fill="var(--muted)">✦ new in this issue</text>
+
+      <!-- raw_shopify -->
+      <rect x="20" y="260" width="200" height="150" rx="8" fill="var(--surface)" stroke="var(--shop)" stroke-width="2"/>
+      <text x="36" y="286" font-weight="700" font-size="15" fill="var(--shop)" font-family="JetBrains Mono, monospace">raw_shopify</text>
+      <g font-size="12" font-family="JetBrains Mono, monospace" fill="var(--ink)">
+        <text x="36" y="312">products · variants</text>
+        <text x="36" y="330">stock_snapshots</text>
+        <text x="36" y="348">orders · order_lines</text>
+      </g>
+
+      <!-- core.products -->
+      <rect x="300" y="150" width="230" height="140" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+      <text x="316" y="178" font-weight="700" font-size="15" fill="var(--ink)" font-family="JetBrains Mono, monospace">core.products</text>
+      <text x="316" y="202" font-size="12" fill="var(--ink)">1. match on SKU</text>
+      <text x="316" y="222" font-size="12" fill="var(--ink)">2. else match on GTIN</text>
+      <text x="316" y="242" font-size="12" fill="var(--ink)">3. else a row on its own side</text>
+      <text x="316" y="270" font-size="11" fill="var(--muted)">one row per SKU · matched_on</text>
+
+      <line x1="220" y1="100" x2="298" y2="190" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="220" y1="312" x2="298" y2="250" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- other views -->
+      <rect x="610" y="30" width="200" height="74" rx="8" fill="var(--surface)" stroke="var(--ink)"/>
+      <text x="626" y="56" font-weight="600" font-size="13" fill="var(--ink)" font-family="JetBrains Mono, monospace">core.stock_snapshots</text>
+      <text x="626" y="76" font-size="12" fill="var(--muted)">history, both sources</text>
+      <text x="626" y="92" font-size="12" fill="var(--muted)">side by side</text>
+
+      <rect x="610" y="130" width="200" height="56" rx="8" fill="var(--surface)" stroke="var(--ink)"/>
+      <text x="626" y="156" font-weight="600" font-size="13" fill="var(--ink)" font-family="JetBrains Mono, monospace">core.stock</text>
+      <text x="626" y="174" font-size="12" fill="var(--muted)">latest snapshot per source</text>
+
+      <rect x="610" y="250" width="200" height="56" rx="8" fill="var(--surface)" stroke="var(--ink)"/>
+      <text x="626" y="276" font-weight="600" font-size="13" fill="var(--ink)" font-family="JetBrains Mono, monospace">core.orders</text>
+      <text x="626" y="294" font-size="12" fill="var(--muted)">AX + Shopify, one status set</text>
+
+      <rect x="610" y="330" width="200" height="56" rx="8" fill="var(--surface)" stroke="var(--ink)"/>
+      <text x="626" y="356" font-weight="600" font-size="13" fill="var(--ink)" font-family="JetBrains Mono, monospace">core.order_lines</text>
+      <text x="626" y="374" font-size="12" fill="var(--muted)">matched SKU per line</text>
+
+      <line x1="710" y1="104" x2="710" y2="128" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="710" y1="306" x2="710" y2="328" stroke="var(--ink)" stroke-width="1.5"/>
+
+      <!-- products used for shopify sku -->
+      <path d="M530,190 C570,190 570,67 608,67" fill="none" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrA)"/>
+      <path d="M530,250 C570,250 570,358 608,358" fill="none" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrA)"/>
+      <text x="548" y="140" font-size="11" fill="var(--accent)" font-weight="600">Shopify SKU</text>
+      <text x="548" y="420" font-size="11" fill="var(--accent)" font-weight="600">Shopify SKU</text>
+
+      <!-- next -->
+      <rect x="860" y="170" width="100" height="100" rx="8" fill="none" stroke="var(--next)" stroke-dasharray="5 4"/>
+      <text x="910" y="212" text-anchor="middle" font-size="13" font-weight="600" fill="var(--next)">MCP</text>
+      <text x="910" y="232" text-anchor="middle" font-size="12" fill="var(--next)">#9 · reads</text>
+      <text x="910" y="248" text-anchor="middle" font-size="12" fill="var(--next)">core only</text>
+      <line x1="810" y1="158" x2="858" y2="200" stroke="var(--next)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrN)"/>
+      <line x1="810" y1="278" x2="858" y2="240" stroke="var(--next)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrN)"/>
+
+      <text x="20" y="455" font-size="12" fill="var(--muted)">Views hold no data of their own: each query reads the raw tables the last sync wrote.</text>
+    </svg>
+  </div>
+  <div class="legend"><span class="l-replace">reads</span><span class="l-append">gives Shopify rows the matched SKU</span><span class="l-next">next issue</span></div>
+</section>
+
+<section>
+  <div class="eyebrow">Step through it</div>
+  <h2>How a SKU is decided</h2>
+  <ol class="steps">
+    <li class="ax">
+      <h3>AX gets barcodes</h3>
+      <p>The GTIN fallback needs a barcode on the AX side, and the emulator had none. Real AX 2009 keeps barcodes in <code>INVENTITEMBARCODE</code>, so the emulator, the seed tool and the AX sync now include it. The schema script creates the new table on its own, so an existing AX database gets it when <code>ax-init</code> runs again.</p>
+      <div class="where">ax/schema.sql:116 · AxSeeder.cs:63 · AxSync.cs:16</div>
+    </li>
+    <li class="both">
+      <h3>The views are created at startup</h3>
+      <p>Before the workers start, the API creates the raw tables and recreates the <code>core</code> views, all in one transaction. If Postgres isn't running, it stops with a message saying so, rather than running with no views.</p>
+      <div class="where">src/Pulse.Api/Core/Schema.cs · Program.cs:39</div>
+    </li>
+    <li class="both">
+      <h3>Match on SKU first</h3>
+      <p>An AX item and a Shopify variant with the same SKU are one product. This covers all 30 seeded SKUs today.</p>
+      <div class="where">src/Pulse.Api/Core/core.sql:32</div>
+    </li>
+    <li class="both">
+      <h3>Then on GTIN</h3>
+      <p>If an AX item has no Shopify variant with its SKU, and that variant's SKU isn't used by another AX item, the two are matched on barcode. The row keeps the AX item number as its SKU and records <code>matched_on = 'gtin'</code>.</p>
+      <div class="where">core.sql:36</div>
+    </li>
+    <li class="both">
+      <h3>Anything left gets its own row</h3>
+      <p>An item found in only one system still appears, with <code>in_ax</code> or <code>in_shopify</code> false. That's how a product missing from the webshop will show up.</p>
+      <div class="where">core.sql:46 · columns from :59</div>
+    </li>
+    <li class="shop">
+      <h3>Stock and order lines borrow the matched SKU</h3>
+      <p>Shopify stock and order lines are joined to <code>core.products</code> by Shopify id. A variant matched by GTIN is then counted as its AX item, even though its own SKU is different.</p>
+      <div class="where">core.sql:85 · :149</div>
+    </li>
+    <li class="ax">
+      <h3>Current stock is the latest snapshot</h3>
+      <p><code>core.stock</code> keeps only each source's newest snapshot, while <code>core.stock_snapshots</code> keeps every run for the slow-stock analysis. Both sources stay side by side: which one to trust is a question for the tools that read them.</p>
+      <div class="where">core.sql:94</div>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <div class="eyebrow">Seen on a real run</div>
+  <h2>The Oslo sofas, through one model</h2>
+  <p class="prose">This is the question #9 has to answer: “how many Oslo sofas are in stock?” Every Oslo SKU has rows from both sources, with AX split by location. In AX's warehouse, 17 are free.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>SKU</th><th>Source</th><th>Location</th><th>On hand</th><th>Reserved</th><th>Available</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">OSLO2-GRA</td><td>AX</td><td class="mono">LAGER</td><td class="n">3</td><td class="n">0</td><td class="n">3</td></tr>
+        <tr><td class="mono">OSLO2-GRA</td><td>Shopify</td><td>Shop location</td><td class="n">3</td><td class="n">0</td><td class="n">3</td></tr>
+        <tr><td class="mono">OSLO2-NAT</td><td>AX</td><td class="mono">LAGER</td><td class="n">5</td><td class="n">0</td><td class="n">5</td></tr>
+        <tr><td class="mono">OSLO2-NAT</td><td>Shopify</td><td>Shop location</td><td class="n">5</td><td class="n">0</td><td class="n">5</td></tr>
+        <tr><td class="mono">OSLO3-GRA</td><td>AX</td><td class="mono">LAGER</td><td class="n">4</td><td class="n">0</td><td class="n">4</td></tr>
+        <tr><td class="mono">OSLO3-GRA</td><td>Shopify</td><td>Shop location</td><td class="n">4</td><td class="n">0</td><td class="n">4</td></tr>
+        <tr class="gap"><td class="mono">OSLO3-NAT</td><td>AX</td><td class="mono">LAGER</td><td class="n">6</td><td class="n">1</td><td class="n">5</td></tr>
+        <tr class="gap"><td class="mono">OSLO3-NAT</td><td>Shopify</td><td>Shop location</td><td class="n">6</td><td class="n">0</td><td class="n">6</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="prose" style="color:var(--muted);font-size:0.9rem">Each SKU also has one on display in the shop (<span class="mono">BUTIK</span>), left out above. The highlighted rows are the gap from the last tour: one OSLO3-NAT is reserved in AX but still offered online.</p>
+</section>
+
+<section>
+  <div class="eyebrow">What the data already shows</div>
+  <h2>The churn patterns can be read through the views</h2>
+  <p class="prose">The seed tool built three customers who drift away. Each one shows up with a short query on <code>core.orders</code>, <code>core.order_lines</code> and <code>core.products</code>, with no AX table names involved. This is the groundwork for the B2B churn analysis.</p>
+
+  <div class="grid2">
+    <div class="finding">
+      <h3>Østby Kommune stops ordering</h3>
+      <p>The gaps between orders grow: 42, 47, 60, 66, 77, then 100 days. The last order was 7 July 2026, and none since.</p>
+    </div>
+    <div class="finding">
+      <h3>Hav &amp; Hus narrows to beds</h3>
+      <p>Beds were 25% of the items it ordered in the first 12 months, and 100% in the last 6.</p>
+    </div>
+    <div class="finding">
+      <h3>Tryghed orders less each time</h3>
+      <p>From 6.0 items per order in the first 12 months to 2.0 in the last 6.</p>
+    </div>
+    <div class="finding" style="border-left-color:var(--shop);background:var(--surface)">
+      <h3>Nordlys stays steady</h3>
+      <p>For comparison: 4.8 items per order, then 6.3, with no stop and no narrowing.</p>
+    </div>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>Order size and mix, first 12 months against the last 6</caption>
+      <thead><tr><th>Customer</th><th>Period</th><th>Orders</th><th>Items per order</th><th>Beds</th></tr></thead>
+      <tbody>
+        <tr><td>10001 Nordlys</td><td>first 12 mo</td><td class="n">12</td><td class="n">4.8</td><td class="n">25 %</td></tr>
+        <tr><td>10001 Nordlys</td><td>last 6 mo</td><td class="n">6</td><td class="n">6.3</td><td class="n">8 %</td></tr>
+        <tr><td>10002 Hav &amp; Hus</td><td>first 12 mo</td><td class="n">10</td><td class="n">6.5</td><td class="n">25 %</td></tr>
+        <tr class="gap"><td>10002 Hav &amp; Hus</td><td>last 6 mo</td><td class="n">5</td><td class="n">3.4</td><td class="n">100 %</td></tr>
+        <tr><td>10006 Tryghed</td><td>first 12 mo</td><td class="n">13</td><td class="n">6.0</td><td class="n">14 %</td></tr>
+        <tr class="gap"><td>10006 Tryghed</td><td>last 6 mo</td><td class="n">6</td><td class="n">2.0</td><td class="n">33 %</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Run it yourself</div>
+  <h2>Try it on your machine</h2>
+  <div class="cmds">
+    <span class="label">If your AX database is from before this change, add the barcode table and reseed AX:</span>
+    <div class="cmd"><pre>docker compose run --rm ax-init
+dotnet run --project src/Pulse.Seed -- ax</pre><button type="button" data-copy>Copy</button></div>
+    <span class="label">Start the API. It creates the views, then syncs:</span>
+    <div class="cmd"><pre>dotnet run --project src/Pulse.Api</pre><button type="button" data-copy>Copy</button></div>
+    <span class="label">How many Oslo sofas are free in the warehouse?</span>
+    <div class="cmd"><pre>docker exec pulse-postgres-1 psql -U pulse -d pulse -c "SELECT sku, source, location, available FROM core.stock WHERE sku LIKE 'OSLO%' ORDER BY 1, 2, 3;"</pre><button type="button" data-copy>Copy</button></div>
+    <span class="label">One customer's orders, with the customer name from AX:</span>
+    <div class="cmd"><pre>docker exec pulse-postgres-1 psql -U pulse -d pulse -c "SELECT order_number, created_at::date, status, total FROM core.orders WHERE customer_id = '10004' ORDER BY 2;"</pre><button type="button" data-copy>Copy</button></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">What the 11 new tests prove</div>
+  <h2>Tests</h2>
+  <p class="prose">They share one lab: AX seeded in SQL Server, both syncs run (Shopify from its recordings), and the views created. Tests that change rows do it in a transaction they roll back.</p>
+  <ul class="tests">
+    <li><b>Every_catalogue_sku_is_one_product_found_in_both_systems</b>All 30 SKUs matched on SKU, each with the catalogue's GTIN.</li>
+    <li><b>Ax_list_price_and_shopify_price_agree</b>The AX list price equals the Shopify price. B2B-only items are drafts.</li>
+    <li><b>Falls_back_to_gtin_when_the_skus_differ</b>A renamed Shopify SKU is still matched to the AX item by barcode, stock included.</li>
+    <li><b>An_item_in_one_system_only_still_gets_a_row</b>A web-only variant and an AX-only item each get their own row.</li>
+    <li><b>Both_systems_count_the_same_warehouse_stock</b>On-hand stock matches per SKU between AX's warehouse and Shopify.</li>
+    <li><b>Ax_available_stock_is_on_hand_minus_reserved</b>True on every row, and some stock really is reserved.</li>
+    <li><b>Stock_shows_only_the_latest_snapshot</b>With two snapshots in history, current stock is the newer one.</li>
+    <li><b>Orders_come_from_both_systems</b>All 345 AX orders and 2 Shopify orders, with statuses and customer names.</li>
+    <li><b>Ax_order_totals_are_the_sum_of_their_lines</b>Holds for every AX order.</li>
+    <li><b>Shopify_order_lines_get_the_matched_sku</b>A line keeps the AX SKU when its variant was matched by GTIN.</li>
+    <li><b>The_churned_customer_stops_ordering</b>Østby Kommune's last order is more than three months old.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="eyebrow">Still open</div>
+  <h2>Decisions for you</h2>
+  <div class="open">
+    <div><span class="tag">Now</span><p>Commit and push this to <code>phase-1-lab</code>. Then #9, the MCP server.</p></div>
+    <div><span class="tag">For #9</span><p>When asked “how many are in stock?”, should Claude answer with AX's free warehouse stock (17 Oslo sofas) and mention Shopify only when they differ?</p></div>
+    <div><span class="tag">Totals</span><p>An AX order's total is the sum of its lines. A Shopify order's total includes shipping and tax. Fine while Shopify has no orders, but worth settling before comparing revenue.</p></div>
+    <div><span class="tag">Real AX</span><p>The views assume one AX company and that a SKU is the AX item number. The schema extract (#3) will show whether that holds.</p></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(button => {
+  button.addEventListener('click', () => {
+    const text = button.parentElement.querySelector('pre').textContent;
+    const done = () => { button.textContent = 'Copied'; setTimeout(() => (button.textContent = 'Copy'), 1500); };
+    const fallback = () => {
+      const range = document.createRange();
+      range.selectNodeContents(button.parentElement.querySelector('pre'));
+      const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      button.textContent = 'Press Ctrl+C';
+    };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+  });
+});
+</script>
+</body>
+</html>
