@@ -24,8 +24,11 @@ public class AxSync(string axConnectionString, string dataAreaId, NpgsqlDataSour
     private static readonly string[] StockColumns =
         ["ITEMID", "INVENTDIMID", "PHYSICALINVENT", "RESERVPHYSICAL", "AVAILPHYSICAL", "ONORDER", "DATAAREAID", "MODIFIEDDATETIME", "RECID"];
 
-    public async Task RunAsync(CancellationToken ct)
+    public string Source => "ax";
+
+    public async Task<IReadOnlyDictionary<string, int>> RunAsync(CancellationToken ct)
     {
+        var rows = new Dictionary<string, int>();
         var syncedAt = clock.GetUtcNow();
 
         await using var ax = new SqlConnection(axConnectionString);
@@ -42,15 +45,17 @@ public class AxSync(string axConnectionString, string dataAreaId, NpgsqlDataSour
                 delete.Parameters.AddWithValue("area", dataAreaId);
                 await delete.ExecuteNonQueryAsync(ct);
             }
-            await CopyAsync(ax, pg, table, target, columns, syncedAt, ct);
+            rows[target] = await CopyAsync(ax, pg, table, target, columns, syncedAt, ct);
         }
 
-        await CopyAsync(ax, pg, "INVENTSUM", "raw_ax.stock_snapshots", StockColumns, syncedAt, ct);
+        rows["raw_ax.stock_snapshots"] = await CopyAsync(ax, pg, "INVENTSUM", "raw_ax.stock_snapshots", StockColumns, syncedAt, ct);
 
         await transaction.CommitAsync(ct);
+        return rows;
     }
 
-    private async Task CopyAsync(SqlConnection ax, NpgsqlConnection pg, string source, string target,
+    // Returns the number of rows copied.
+    private async Task<int> CopyAsync(SqlConnection ax, NpgsqlConnection pg, string source, string target,
         string[] columns, DateTimeOffset syncedAt, CancellationToken ct)
     {
         await using var select = new SqlCommand($"SELECT {string.Join(", ", columns)} FROM {source} WHERE DATAAREAID = @area", ax);
@@ -71,6 +76,6 @@ public class AxSync(string axConnectionString, string dataAreaId, NpgsqlDataSour
             }
             await import.WriteAsync(syncedAt, ct);
         }
-        await import.CompleteAsync(ct);
+        return (int)await import.CompleteAsync(ct);
     }
 }

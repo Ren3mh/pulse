@@ -23,6 +23,11 @@ public class LabFixture : IAsyncLifetime
 
     public NpgsqlDataSource Db { get; private set; } = null!;
 
+    public string ConnectionString => _pg.GetConnectionString();
+
+    // When the fixture's syncs ran.
+    public static readonly DateTimeOffset SyncedAt = new(Today.AddHours(8), TimeSpan.Zero);
+
     public async Task InitializeAsync()
     {
         await Task.WhenAll(_sql.StartAsync(), _pg.StartAsync());
@@ -31,7 +36,7 @@ public class LabFixture : IAsyncLifetime
         await new AxSeeder(ax, "pul").SeedAsync(Today);
 
         Db = NpgsqlDataSource.Create(_pg.GetConnectionString());
-        var clock = new FakeTimeProvider(new DateTimeOffset(Today.AddHours(8), TimeSpan.Zero));
+        var clock = new FakeTimeProvider(SyncedAt);
         await Schema.CreateAsync(Db);
         await new AxSync(ax, "pul", Db, clock).RunAsync(CancellationToken.None);
         await new ShopifySync(new RecordedShopify().Client(clock), Db, clock).RunAsync(CancellationToken.None);

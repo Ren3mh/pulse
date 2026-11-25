@@ -6,9 +6,9 @@ namespace Pulse.Api.Core;
 public static class Schema
 {
     // The raw tables first: the core views read them.
-    private static readonly string[] Scripts = ["raw_ax.sql", "raw_shopify.sql", "core.sql"];
+    private static readonly string[] Scripts = ["raw_ax.sql", "raw_shopify.sql", "core.sql", "ops.sql"];
 
-    // Creates the raw_* tables and recreates the core views. Run at startup.
+    // Creates the raw_* and ops tables and recreates the core views. Run at startup.
     public static async Task CreateAsync(NpgsqlDataSource postgres, CancellationToken ct = default)
     {
         await using var connection = await postgres.OpenConnectionAsync(ct);

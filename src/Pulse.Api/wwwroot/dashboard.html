@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse dashboard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f9; --surface: #ffffff; --ink: #191919; --ink-2: #666666;
+    --grid: #e7e7e7; --axis: #c2c2c2; --ring: rgba(11,11,11,0.10);
+    --ax: #257de0; --shopify: #f47230;
+    --good: #0aac23; --warning: #fbb315; --critical: #dc3c3d; --off: #9c9c9c;
+    --select: #191919;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0b0b0b; --surface: #191919; --ink: #efefef; --ink-2: #9c9c9c;
+      --grid: #303030; --axis: #474747; --ring: rgba(255,255,255,0.10);
+      --ax: #338ced; --shopify: #e76624; --off: #666666; --select: #efefef;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: baseline; gap: 16px; padding: 20px 24px 8px; }
+  header h1 { font-size: 20px; margin: 0; }
+  header .sub { color: var(--ink-2); }
+  header .error { color: var(--critical); margin-left: auto; }
+  main { padding: 8px 24px 32px; display: grid; gap: 16px; max-width: 1400px; }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 4px; }
+  .card .hint { color: var(--ink-2); font-size: 13px; margin: 0 0 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .tile .label { color: var(--ink-2); font-size: 13px; }
+  .tile .value { font-size: 26px; font-weight: 600; margin-top: 2px; }
+  .tile .detail { color: var(--ink-2); font-size: 13px; }
+  .top { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 16px; }
+  .bottom { display: grid; grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr); gap: 16px; }
+  @media (max-width: 1000px) { .top, .bottom { grid-template-columns: 1fr; } }
+
+  /* System map */
+  #map { width: 100%; height: auto; display: block; }
+  .node { cursor: pointer; }
+  .node rect { fill: var(--surface); stroke: var(--axis); stroke-width: 1.5; }
+  .node:hover rect { stroke: var(--ink-2); }
+  .node.selected rect { stroke: var(--select); stroke-width: 2.5; }
+  .node.future rect { stroke-dasharray: 5 4; }
+  .node.future text { fill: var(--ink-2); }
+  .node:focus { outline: none; }
+  .node:focus-visible rect { stroke: var(--select); stroke-width: 2.5; }
+  .node .title { font-weight: 600; font-size: 14px; fill: var(--ink); }
+  .node .meta { font-size: 12px; fill: var(--ink-2); }
+  .edge { fill: none; stroke: var(--axis); stroke-width: 2; }
+  .edge.ok { stroke: var(--good); }
+  .edge.failing { stroke: var(--critical); }
+  .edge.stale, .edge.waiting { stroke: var(--warning); }
+  .edge.off { stroke: var(--off); stroke-dasharray: 4 4; }
+  .edge.future { stroke-dasharray: 4 4; }
+
+  /* Status: colour always with an icon and a word */
+  .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--off); }
+  .status.ok::before { background: var(--good); }
+  .status.failing::before { background: var(--critical); border-radius: 2px; transform: rotate(45deg); }
+  .status.stale::before, .status.waiting::before { background: var(--warning); border-radius: 2px; }
+  .status.off::before { background: transparent; border: 2px solid var(--off); }
+
+  /* Side panel */
+  #panel h2 { font-size: 16px; }
+  #panel dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 12px 0; }
+  #panel dt { color: var(--ink-2); }
+  #panel dd { margin: 0; }
+  .errorbox { background: color-mix(in srgb, var(--critical) 10%, var(--surface)); border-left: 3px solid var(--critical);
+              padding: 8px 10px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 12px; white-space: pre-wrap; margin: 8px 0; }
+  code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--page); padding: 1px 4px; border-radius: 3px; }
+  pre { font-family: ui-monospace, monospace; font-size: 12px; background: var(--page); padding: 8px 10px; border-radius: 4px; overflow-x: auto; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { text-align: left; color: var(--ink-2); font-weight: 500; padding: 4px 8px; border-bottom: 1px solid var(--axis); }
+  td { padding: 4px 8px; border-bottom: 1px solid var(--grid); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody tr.clickable { cursor: pointer; }
+  tbody tr.clickable:hover { background: var(--page); }
+  tbody tr.selected { background: color-mix(in srgb, var(--ax) 12%, var(--surface)); }
+  .empty { color: var(--ink-2); font-style: italic; padding: 8px 0; }
+
+  /* Chart */
+  .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .seg { display: inline-flex; border: 1px solid var(--ring); border-radius: 6px; overflow: hidden; }
+  .seg button { border: 0; background: var(--surface); color: var(--ink); padding: 4px 10px; font: inherit; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .chip { border: 1px solid var(--ring); background: var(--page); border-radius: 999px; padding: 2px 10px; font: inherit; cursor: pointer; color: var(--ink); }
+  .legend { display: flex; gap: 16px; color: var(--ink-2); font-size: 13px; margin-left: auto; }
+  .legend span::before { content: ""; display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 6px; }
+  .legend .ax::before { background: repeating-linear-gradient(90deg, var(--ax) 0 6px, transparent 6px 10px); }
+  .legend .shopify::before { background: var(--shopify); }
+  #chart { position: relative; }
+  #chart svg { width: 100%; height: 260px; display: block; }
+  #chart .gridline { stroke: var(--grid); }
+  #chart .baseline { stroke: var(--axis); }
+  #chart .tick { fill: var(--ink-2); font-size: 11px; font-variant-numeric: tabular-nums; }
+  #chart .line { fill: none; stroke-width: 2; stroke-linejoin: round; }
+  #chart .crosshair { stroke: var(--axis); }
+  .tooltip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--ring);
+             border-radius: 6px; padding: 6px 10px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.12); display: none; white-space: nowrap; }
+  .tooltip .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  details summary { cursor: pointer; color: var(--ink-2); font-size: 13px; margin-top: 8px; }
+  .gap-pos { color: var(--critical); font-weight: 600; }
+  .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .lists h3 { font-size: 13px; margin: 0 0 4px; color: var(--ink-2); font-weight: 500; }
+  .lists ul { margin: 0; padding-left: 18px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Pulse</h1>
+  <span class="sub" id="updated">Loading…</span>
+  <span class="error" id="fetch-error" hidden></span>
+</header>
+<main>
+  <section class="tiles" id="tiles" aria-label="Headline numbers"></section>
+
+  <section class="top">
+    <div class="card">
+      <h2>System map</h2>
+      <p class="hint">Click a box for details. Lines are coloured by the sync that feeds them.</p>
+      <svg id="map" viewBox="0 0 980 300" role="group" aria-label="Pulse system map"></svg>
+    </div>
+    <div class="card" id="panel" aria-live="polite"></div>
+  </section>
+
+  <section class="bottom">
+    <div class="card">
+      <h2 id="chart-title">Warehouse stock on hand</h2>
+      <p class="hint" id="chart-hint"></p>
+      <div class="toolbar">
+        <div class="seg" id="ranges" role="group" aria-label="Time range">
+          <button data-range="24h">24h</button><button data-range="7d">7d</button><button data-range="30d">30d</button>
+        </div>
+        <button class="chip" id="clear-sku" hidden>Show all SKUs ✕</button>
+        <div class="legend"><span class="ax">AX</span><span class="shopify">Shopify</span></div>
+      </div>
+      <div id="chart"><div class="tooltip" id="tooltip"></div></div>
+      <details><summary>Show as table</summary><div id="chart-table"></div></details>
+    </div>
+    <div class="card">
+      <h2>Stock gaps</h2>
+      <p class="hint" id="gaps-hint"></p>
+      <div id="gaps"></div>
+      <div class="lists">
+        <div><h3>Only in AX</h3><div id="only-ax"></div></div>
+        <div><h3>Only in Shopify</h3><div id="only-shopify"></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const POLL_MS = 30_000;
+const STATUS_WORD = { ok: "OK", stale: "Stale", failing: "Failing", waiting: "No runs yet", off: "Off" };
+const state = { data: null, range: "7d", sku: null, selected: "ax-sync", error: null };
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = n => Number(n).toLocaleString("en", { maximumFractionDigits: 0 });
+const time = t => t ? new Date(t).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "–";
+function ago(t) {
+  if (!t) return "never";
+  const s = Math.round((Date.now() - new Date(t)) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.round(s / 60);
+  if (m < 90) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`;
+}
+function inFuture(t) {
+  if (!t) return "–";
+  const m = Math.round((new Date(t) - Date.now()) / 60000);
+  return m <= 0 ? "due now" : `in ~${m} min`;
+}
+const status = s => `<span class="status ${s}">${STATUS_WORD[s]}</span>`;
+const source = name => state.data.sources.find(s => s.name === name);
+const tablesIn = schema => state.data.tables.filter(t => t.schema === schema);
+const sumRows = schema => tablesIn(schema).reduce((n, t) => n + t.rows, 0);
+
+// ---------- data ----------
+async function load() {
+  const params = new URLSearchParams({ range: state.range });
+  if (state.sku) params.set("sku", state.sku);
+  try {
+    const response = await fetch(`/dashboard/data?${params}`);
+    if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+    state.data = await response.json();
+    state.error = null;
+  } catch (e) {
+    state.error = `Couldn't load data: ${e.message}`;
+  }
+  render();
+}
+
+// ---------- render ----------
+function render() {
+  $("fetch-error").hidden = !state.error;
+  $("fetch-error").textContent = state.error ?? "";
+  if (!state.data) return;
+  $("updated").textContent = `Updated ${ago(state.data.now)} · refreshes every 30 s`;
+  renderTiles(); renderMap(); renderPanel(); renderChart(); renderGaps();
+}
+
+function renderTiles() {
+  const d = state.data, ax = source("ax"), shop = source("shopify");
+  const syncTile = s => `
+    <div class="card tile"><div class="label">${s.name === "ax" ? "AX" : "Shopify"} sync</div>
+      <div class="value">${status(s.status)}</div>
+      <div class="detail">${s.configured ? `Last ${ago(s.runs[0]?.finishedAt)} · next ${inFuture(s.nextRunAt)}` : "No credentials"}</div></div>`;
+  $("tiles").innerHTML = syncTile(ax) + syncTile(shop) + `
+    <div class="card tile"><div class="label">Stock gaps</div>
+      <div class="value">${d.stock.axSyncedAt && d.stock.shopifySyncedAt ? num(d.stock.gaps.length) : "–"}</div>
+      <div class="detail">SKUs where ${esc(d.stock.warehouse)} and Shopify disagree</div></div>
+    <div class="card tile"><div class="label">Products in core</div>
+      <div class="value">${num(d.tables.find(t => t.schema === "core" && t.name === "products")?.rows ?? 0)}</div>
+      <div class="detail">${d.stock.onlyInAx.length} only in AX · ${d.stock.onlyInShopify.length} only in Shopify</div></div>
+    <div class="card tile"><div class="label">Stock snapshots</div>
+      <div class="value">${num(rowsOf("raw_ax", "stock_snapshots") + rowsOf("raw_shopify", "stock_snapshots"))}</div>
+      <div class="detail">rows kept across both sources</div></div>`;
+}
+const rowsOf = (schema, name) => state.data.tables.find(t => t.schema === schema && t.name === name)?.rows ?? 0;
+
+// Node layout: five columns, AX on top, Shopify below.
+const NODES = [
+  { id: "ax-source",       x: 10,  y: 30,  title: "AX 2009 emulator", meta: () => "SQL Server · DynamicsAx", source: "ax" },
+  { id: "shopify-source",  x: 10,  y: 190, title: "Shopify dev store", meta: () => "Admin GraphQL API", source: "shopify" },
+  { id: "ax-sync",         x: 210, y: 30,  title: "AX sync", meta: () => syncMeta("ax"), source: "ax" },
+  { id: "shopify-sync",    x: 210, y: 190, title: "Shopify sync", meta: () => syncMeta("shopify"), source: "shopify" },
+  { id: "raw_ax",          x: 410, y: 30,  title: "raw_ax", meta: () => `${tablesIn("raw_ax").length} tables · ${num(sumRows("raw_ax"))} rows` },
+  { id: "raw_shopify",     x: 410, y: 190, title: "raw_shopify", meta: () => `${tablesIn("raw_shopify").length} tables · ${num(sumRows("raw_shopify"))} rows` },
+  { id: "core",            x: 610, y: 110, title: "core views", meta: () => `${tablesIn("core").length} views · ${num(rowsOf("core", "products"))} products` },
+  { id: "mcp",             x: 810, y: 110, title: "MCP server", meta: () => "not built yet (#9)", future: true },
+];
+const EDGES = [
+  ["ax-source", "ax-sync", "ax"], ["ax-sync", "raw_ax", "ax"],
+  ["shopify-source", "shopify-sync", "shopify"], ["shopify-sync", "raw_shopify", "shopify"],
+  ["raw_ax", "core", "ax"], ["raw_shopify", "core", "shopify"], ["core", "mcp", null, true],
+];
+const W = 160, H = 64;
+function syncMeta(name) {
+  const s = source(name);
+  return s.configured ? `${STATUS_WORD[s.status]} · ${ago(s.runs[0]?.finishedAt)}` : "off: no credentials";
+}
+
+function renderMap() {
+  const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+  const edges = EDGES.map(([from, to, src, future]) => {
+    const a = byId[from], b = byId[to];
+    const x1 = a.x + W, y1 = a.y + H / 2, x2 = b.x, y2 = b.y + H / 2, mx = (x1 + x2) / 2;
+    const cls = future ? "future" : src ? source(src).status : "";
+    return `<path class="edge ${cls}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`;
+  }).join("");
+  const nodes = NODES.map(n => {
+    const st = n.source ? source(n.source).status : null;
+    const dot = st ? `<circle cx="${n.x + W - 14}" cy="${n.y + 16}" r="5" fill="var(--${{ ok: "good", failing: "critical", stale: "warning", waiting: "warning", off: "off" }[st]})"/>` : "";
+    return `<g class="node${n.future ? " future" : ""}${state.selected === n.id ? " selected" : ""}" data-id="${n.id}" tabindex="0" role="button"
+               aria-label="${esc(n.title)}${st ? ", " + STATUS_WORD[st] : ""}">
+      <rect x="${n.x}" y="${n.y}" width="${W}" height="${H}" rx="8"/>${dot}
+      <text class="title" x="${n.x + 12}" y="${n.y + 26}">${esc(n.title)}</text>
+      <text class="meta" x="${n.x + 12}" y="${n.y + 46}">${esc(n.meta())}</text></g>`;
+  }).join("");
+  $("map").innerHTML = edges + nodes;
+}
+
+function runsTable(s) {
+  if (!s.runs.length) return `<p class="empty">No runs recorded yet.</p>`;
+  return `<table><thead><tr><th>Started</th><th>Result</th><th class="num">Rows</th><th class="num">Took</th></tr></thead><tbody>${
+    s.runs.map(r => `<tr><td>${time(r.startedAt)}</td><td>${r.ok ? status("ok") : status("failing")}</td>
+      <td class="num">${num(Object.values(r.rows).reduce((a, b) => a + b, 0))}</td>
+      <td class="num">${((new Date(r.finishedAt) - new Date(r.startedAt)) / 1000).toFixed(1)} s</td></tr>`).join("")}</tbody></table>`;
+}
+function countsTable(schema) {
+  return `<table><thead><tr><th>${schema === "core" ? "View" : "Table"}</th><th class="num">Rows</th></tr></thead><tbody>${
+    tablesIn(schema).map(t => `<tr><td><code>${esc(t.schema)}.${esc(t.name)}</code></td><td class="num">${num(t.rows)}</td></tr>`).join("")}</tbody></table>`;
+}
+function syncHealth(s) {
+  const last = s.runs[0];
+  if (!s.configured) return `<p>Shopify sync is off because no credentials are set. Set them with user-secrets, then restart Pulse.Api:</p>
+    <pre>dotnet user-secrets set "Shopify:StoreDomain" "&lt;store&gt;.myshopify.com" --project src/Pulse.Api
+dotnet user-secrets set "Shopify:ClientId" "&lt;id&gt;" --project src/Pulse.Api
+dotnet user-secrets set "Shopify:ClientSecret" "&lt;secret&gt;" --project src/Pulse.Api</pre>`;
+  return `<dl><dt>Status</dt><dd>${status(s.status)}</dd>
+      <dt>Last run</dt><dd>${last ? `${time(last.startedAt)} (${ago(last.finishedAt)})` : "–"}</dd>
+      <dt>Last success</dt><dd>${s.lastSuccess ? `${time(s.lastSuccess)} (${ago(s.lastSuccess)})` : "never"}</dd>
+      <dt>Next run</dt><dd>${inFuture(s.nextRunAt)}</dd></dl>
+    ${last && !last.ok ? `<div class="errorbox">${esc(last.error)}</div>` : ""}`;
+}
+
+const PANELS = {
+  "ax-source": () => `<h2>AX 2009 emulator</h2><p class="hint">SQL Server in Docker on localhost:1433, database DynamicsAx, company <code>pul</code>.
+      Pulse never connects to it from here. Its health is what the AX sync last saw.</p>${syncHealth(source("ax"))}`,
+  "shopify-source": () => `<h2>Shopify dev store</h2><p class="hint">Read through the Admin GraphQL API with a client-credentials token.
+      Its health is what the Shopify sync last saw.</p>${syncHealth(source("shopify"))}`,
+  "ax-sync": () => `<h2>AX sync</h2><p class="hint">Copies AX tables into <code>raw_ax</code> and appends an <code>INVENTSUM</code> snapshot, every 15 minutes.</p>
+      ${syncHealth(source("ax"))}${runsTable(source("ax"))}`,
+  "shopify-sync": () => `<h2>Shopify sync</h2><p class="hint">Copies products, variants and orders into <code>raw_shopify</code> and appends a stock snapshot, every 15 minutes.</p>
+      ${syncHealth(source("shopify"))}${source("shopify").configured ? runsTable(source("shopify")) : ""}`,
+  "raw_ax": () => `<h2><code>raw_ax</code></h2><p class="hint">AX tables mirrored as they are. Stock snapshots are appended, not replaced.</p>${countsTable("raw_ax")}`,
+  "raw_shopify": () => `<h2><code>raw_shopify</code></h2><p class="hint">The webshop mirrored. Orders are kept; stock snapshots are appended.</p>${countsTable("raw_shopify")}`,
+  "core": () => `<h2><code>core</code> views</h2><p class="hint">AX and Shopify combined per SKU, with GTIN as the fallback. Pulse answers from these.</p>
+      <dl><dt>AX stock as of</dt><dd>${time(state.data.stock.axSyncedAt)}</dd><dt>Shopify stock as of</dt><dd>${time(state.data.stock.shopifySyncedAt)}</dd></dl>
+      ${countsTable("core")}<h2 style="margin-top:16px"><code>ops</code></h2>${countsTable("ops")}`,
+  "mcp": () => `<h2>MCP server</h2><p class="hint">Not built yet. Issue #9 adds it at <code>/mcp</code>: read-only tools over <code>core</code>
+      (find_product, get_stock, get_customer_orders).</p>`,
+};
+function renderPanel() { $("panel").innerHTML = PANELS[state.selected](); }
+
+// ---------- chart ----------
+function renderChart() {
+  const { series, stock } = state.data;
+  const lines = { ax: series.points.ax.map(([t, v]) => [new Date(t), v]), shopify: series.points.shopify.map(([t, v]) => [new Date(t), v]) };
+  $("chart-title").textContent = series.sku ? `${series.sku}: warehouse stock on hand` : "Warehouse stock on hand, all SKUs";
+  $("chart-hint").textContent = `AX ${stock.warehouse} against Shopify, one point per sync. In sync, the dashed AX line runs on top of Shopify's.`;
+  $("clear-sku").hidden = !series.sku;
+  for (const b of $("ranges").children) b.setAttribute("aria-pressed", b.dataset.range === state.range);
+
+  const all = [...lines.ax, ...lines.shopify];
+  const chart = $("chart");
+  chart.querySelector("svg")?.remove();
+  if (!all.length) {
+    chart.insertAdjacentHTML("afterbegin", `<svg viewBox="0 0 600 260"><text x="300" y="130" text-anchor="middle" class="tick">No snapshots in this range yet.</text></svg>`);
+    $("chart-table").innerHTML = "";
+    return;
+  }
+  const width = chart.clientWidth || 600, height = 260, m = { l: 48, r: 12, t: 12, b: 28 };
+  const t0 = Math.min(...all.map(p => p[0])), t1 = Math.max(...all.map(p => p[0]));
+  const tSpan = Math.max(t1 - t0, 60_000);
+  const vMax = niceMax(Math.max(...all.map(p => p[1]), 1));
+  const x = t => m.l + (t - t0) / tSpan * (width - m.l - m.r);
+  const y = v => height - m.b - v / vMax * (height - m.t - m.b);
+  const ticksY = [0, .25, .5, .75, 1].map(f => f * vMax);
+  const ticksX = Array.from({ length: 5 }, (_, i) => new Date(t0 + i * tSpan / 4));
+  const path = pts => pts.map(([t, v], i) => `${i ? "L" : "M"}${x(t).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  const dots = (pts, color) => pts.length === 1 ? `<circle cx="${x(pts[0][0])}" cy="${y(pts[0][1])}" r="4" fill="${color}"/>` : "";
+  chart.insertAdjacentHTML("afterbegin", `<svg viewBox="0 0 ${width} ${height}" aria-label="Stock on hand over time">
+    ${ticksY.map(v => `<line class="${v ? "gridline" : "baseline"}" x1="${m.l}" x2="${width - m.r}" y1="${y(v)}" y2="${y(v)}"/>
+      <text class="tick" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`).join("")}
+    ${ticksX.map((t, i) => `<text class="tick" x="${x(t)}" y="${height - 8}" text-anchor="${i === 0 ? "start" : i === ticksX.length - 1 ? "end" : "middle"}">${time(t)}</text>`).join("")}
+    <path class="line" stroke="var(--shopify)" d="${path(lines.shopify)}"/>${dots(lines.shopify, "var(--shopify)")}
+    <path class="line" stroke="var(--ax)" stroke-dasharray="6 4" d="${path(lines.ax)}"/>${dots(lines.ax, "var(--ax)")}
+    <line class="crosshair" id="crosshair" y1="${m.t}" y2="${height - m.b}" visibility="hidden"/>
+    <rect id="hover" x="${m.l}" y="${m.t}" width="${width - m.l - m.r}" height="${height - m.t - m.b}" fill="transparent"/></svg>`);
+
+  const svg = chart.querySelector("svg"), tip = $("tooltip"), cross = $("crosshair");
+  const nearest = (pts, t) => pts.reduce((best, p) => !best || Math.abs(p[0] - t) < Math.abs(best[0] - t) ? p : best, null);
+  $("hover").addEventListener("mousemove", e => {
+    const box = svg.getBoundingClientRect();
+    const px = (e.clientX - box.left) * width / box.width;
+    const t = t0 + (px - m.l) / (width - m.l - m.r) * tSpan;
+    const a = nearest(lines.ax, t), s = nearest(lines.shopify, t);
+    const at = [a, s].filter(Boolean).reduce((b, p) => Math.abs(p[0] - t) < Math.abs(b[0] - t) ? p : b)[0];
+    cross.setAttribute("x1", x(at)); cross.setAttribute("x2", x(at)); cross.setAttribute("visibility", "visible");
+    tip.innerHTML = `<div>${time(at)}</div>` +
+      (a ? `<div><span class="swatch" style="background:var(--ax)"></span>AX ${esc(stock.warehouse)}: <b>${num(a[1])}</b></div>` : "") +
+      (s ? `<div><span class="swatch" style="background:var(--shopify)"></span>Shopify: <b>${num(s[1])}</b></div>` : "");
+    tip.style.display = "block";
+    const left = x(at) / width * box.width;
+    tip.style.left = `${Math.min(left + 12, box.width - tip.offsetWidth)}px`;
+    tip.style.top = "8px";
+  });
+  $("hover").addEventListener("mouseleave", () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); });
+
+  // Table view of the same points.
+  const rows = new Map();
+  for (const [name, pts] of Object.entries(lines)) for (const [t, v] of pts) {
+    const key = +t; rows.set(key, { ...(rows.get(key) ?? {}), [name]: v });
+  }
+  $("chart-table").innerHTML = `<table><thead><tr><th>Synced</th><th class="num">AX ${esc(stock.warehouse)}</th><th class="num">Shopify</th></tr></thead><tbody>${
+    [...rows].sort((a, b) => b[0] - a[0]).slice(0, 200).map(([t, r]) =>
+      `<tr><td>${time(t)}</td><td class="num">${r.ax == null ? "–" : num(r.ax)}</td><td class="num">${r.shopify == null ? "–" : num(r.shopify)}</td></tr>`).join("")}</tbody></table>`;
+}
+function niceMax(v) {
+  const p = 10 ** Math.floor(Math.log10(v)), f = v / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+}
+
+// ---------- gaps ----------
+function renderGaps() {
+  const s = state.data.stock;
+  $("gaps-hint").textContent = s.axSyncedAt && s.shopifySyncedAt
+    ? `On hand: AX ${s.warehouse} (as of ${time(s.axSyncedAt)}) vs Shopify (as of ${time(s.shopifySyncedAt)}). Gap = Shopify − AX; positive means the webshop offers more than AX has. Click a row to chart it.`
+    : "Needs a stock snapshot from both AX and Shopify.";
+  $("gaps").innerHTML = !s.gaps.length
+    ? `<p class="empty">${s.axSyncedAt && s.shopifySyncedAt ? "No gaps: every SKU agrees." : "No comparison yet."}</p>`
+    : `<table><thead><tr><th>SKU</th><th>Name</th><th class="num">AX</th><th class="num">Shopify</th><th class="num">Gap</th><th class="num" title="Available: each side subtracts its own reservations">Avail. AX / Shopify</th></tr></thead><tbody>${
+      s.gaps.map(g => `<tr class="clickable${state.sku === g.sku ? " selected" : ""}" data-sku="${esc(g.sku)}" tabindex="0">
+        <td><code>${esc(g.sku)}</code></td><td>${esc(g.name)}</td><td class="num">${num(g.axOnHand)}</td><td class="num">${num(g.shopifyOnHand)}</td>
+        <td class="num ${g.gap > 0 ? "gap-pos" : ""}">${g.gap > 0 ? "+" : g.gap < 0 ? "−" : ""}${num(Math.abs(g.gap))}</td>
+        <td class="num">${num(g.axAvailable)} / ${num(g.shopifyAvailable)}</td></tr>`).join("")}</tbody></table>`;
+  const list = items => items.length ? `<ul>${items.map(p => `<li><code>${esc(p.sku ?? "(no SKU)")}</code> ${esc(p.name)}</li>`).join("")}</ul>` : `<p class="empty">None</p>`;
+  $("only-ax").innerHTML = list(s.onlyInAx);
+  $("only-shopify").innerHTML = list(s.onlyInShopify);
+}
+
+// ---------- events ----------
+function selectNode(id) { state.selected = id; renderMap(); renderPanel(); }
+$("map").addEventListener("click", e => { const n = e.target.closest(".node"); if (n) selectNode(n.dataset.id); });
+$("map").addEventListener("keydown", e => { const n = e.target.closest(".node"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectNode(n.dataset.id); } });
+$("ranges").addEventListener("click", e => { if (e.target.dataset.range) { state.range = e.target.dataset.range; load(); } });
+$("clear-sku").addEventListener("click", () => { state.sku = null; load(); });
+function pickSku(e) { const r = e.target.closest("tr[data-sku]"); if (r) { state.sku = r.dataset.sku === state.sku ? null : r.dataset.sku; load(); } }
+$("gaps").addEventListener("click", pickSku);
+$("gaps").addEventListener("keydown", e => { if (e.key === "Enter") pickSku(e); });
+window.addEventListener("resize", () => state.data && renderChart());
+
+load();
+setInterval(load, POLL_MS);
+setInterval(() => state.data && (renderTiles(), renderMap(), state.selected && renderPanel()), 15_000);
+</script>
+</body>
+</html>
