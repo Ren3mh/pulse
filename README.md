@@ -35,10 +35,17 @@ First steps:
 ## Run locally
 
 ```sh
-docker compose up -d        # Postgres on :5432, AX 2009 emulator on :1433
-dotnet run --project src/Pulse.Api
+docker compose up -d --build   # Postgres :5432, AX 2009 emulator :1433, Pulse.Api :5099
+docker compose logs -f api     # watch the syncs
 dotnet test
 ```
+
+`scripts/pulse-watch` opens a Hyprland workspace with the live logs of `api`,
+`postgres` and `ax`, and a status pane (`scripts/pulse-status`: health, last
+sync, row counts). Run it again to jump back there.
+
+To work on the API itself, stop its container (`docker compose stop api`)
+and run it with `dotnet run --project src/Pulse.Api` instead.
 
 `Pulse.Api` copies AX and Shopify into Postgres at startup and then every
 15 minutes: `raw_ax.*` mirrors the AX tables, `raw_shopify.*` the webshop.
@@ -48,12 +55,21 @@ On top sit the `core` views (`core.products`, `core.stock`,
 `core.stock_snapshots`, `core.orders`, `core.order_lines`): AX and Shopify
 combined per SKU, with GTIN as the fallback. Pulse answers from these.
 
-Shopify credentials live in user-secrets, never in git:
+Shopify credentials live in user-secrets for `dotnet run`, and in `.env`
+for the `api` container (both never in git):
 
 ```sh
 dotnet user-secrets set "Shopify:StoreDomain" "<store>.myshopify.com" --project src/Pulse.Api
 dotnet user-secrets set "Shopify:ClientId" "<id>" --project src/Pulse.Api
 dotnet user-secrets set "Shopify:ClientSecret" "<secret>" --project src/Pulse.Api
+```
+
+`.env` holds the same three, with `__` for `:`:
+
+```sh
+Shopify__StoreDomain=<store>.myshopify.com
+Shopify__ClientId=<id>
+Shopify__ClientSecret=<secret>
 ```
 
 Fill both systems with the same furniture catalogue (safe to rerun):

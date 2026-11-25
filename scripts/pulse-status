@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# One screen of Pulse's state: containers, API health, last syncs and row
+# counts. Meant to run under `watch` (see pulse-watch); safe to run alone.
+cd "$(dirname "$0")/.."
+
+green=$'\e[32m' red=$'\e[31m' dim=$'\e[2m' bold=$'\e[1m' off=$'\e[0m'
+
+echo "${bold}Services${off}"
+docker compose ps --all --format json 2>/dev/null | jq -r '
+  select(.State != "exited" or .ExitCode != 0)
+  | [(if .State == "running" and .Health != "unhealthy" then "up" else "down" end), .Service, .Status] | @tsv' |
+while IFS=$'\t' read -r state name status; do
+  if [[ $state == up ]]; then dot="${green}●${off}"; else dot="${red}○${off}"; fi
+  printf '  %s %-10s %s%s%s\n' "$dot" "$name" "$dim" "$status" "$off"
+done
+
+if [[ $(curl -s -m 2 -o /dev/null -w '%{http_code}' http://localhost:5099/health) == 200 ]]; then
+  echo "  ${green}●${off} /health    ${dim}http://localhost:5099 answers${off}"
+else
+  echo "  ${red}○${off} /health    ${dim}http://localhost:5099 does not answer${off}"
+fi
+
+psql() { docker compose exec -T postgres psql -U pulse -d pulse -tA -F $'\t' -c "$1" 2>/dev/null; }
+
+echo
+echo "${bold}Last sync${off} ${dim}(Copenhagen time)${off}"
+psql "SELECT source, to_char(max(synced_at) AT TIME ZONE 'Europe/Copenhagen', 'DD Mon HH24:MI'), count(DISTINCT synced_at)
+      FROM core.stock_snapshots GROUP BY source ORDER BY source" |
+while IFS=$'\t' read -r source at runs; do
+  printf '  %-10s %s  %s%s snapshots kept%s\n' "$source" "$at" "$dim" "$runs" "$off"
+done
+
+echo
+echo "${bold}core${off}"
+psql "SELECT 'products', count(*)::text, count(*) FILTER (WHERE in_ax AND in_shopify) || ' in both' FROM core.products
+      UNION ALL SELECT 'stock rows', count(*)::text, '' FROM core.stock
+      UNION ALL SELECT 'orders', count(*)::text, string_agg(DISTINCT source, ' + ') FROM core.orders
+      UNION ALL SELECT 'order lines', count(*)::text, '' FROM core.order_lines" |
+while IFS=$'\t' read -r name n note; do
+  printf '  %-12s %6s  %s%s%s\n' "$name" "$n" "$dim" "$note" "$off"
+done

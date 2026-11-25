@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Opens a Hyprland workspace that watches the Pulse lab: live logs of api,
+# postgres and ax, and a status pane (scripts/pulse-status). Run again to
+# jump back to it instead of opening a second set. Hyprland 0.56+: dispatch
+# takes a Lua expression.
+set -euo pipefail
+repo="$(cd "$(dirname "$0")/.." && pwd)"
+
+# A shell string as a Lua string literal (JSON's quoting is valid Lua).
+lua() { jq -Rn --arg s "$1" '$s'; }
+
+focus() { hyprctl dispatch "hl.dsp.focus({ workspace = $(lua "$1") })" >/dev/null; }
+
+# Already open: go there.
+existing=$(hyprctl clients -j | jq -r '[.[] | select(.class | startswith("org.pulse.")) | .workspace.id][0] // empty')
+if [[ -n $existing ]]; then
+  focus "$existing"
+  exit 0
+fi
+
+# The first workspace with nothing on it.
+used=$(hyprctl workspaces -j | jq '[.[] | select(.windows > 0) | .id]')
+workspace=$(jq -n --argjson used "$used" 'first(range(1; 100) | select(. as $n | $used | index($n) | not))')
+
+# Opens a terminal on the workspace, beside the focused window, and waits
+# for it: the tiles only land on a 2x2 grid when they open in order.
+open() { # app-id title command
+  local command="uwsm-app -- xdg-terminal-exec --app-id=org.pulse.$1 --title='Pulse · $2' --dir='$repo' -e bash -c '$3'"
+  hyprctl dispatch "hl.dsp.exec_cmd($(lua "$command"), { workspace = $(lua "$workspace") })" >/dev/null
+  for _ in {1..50}; do
+    hyprctl clients -j | jq -e --arg c "org.pulse.$1" 'any(.[]; .class == $c)' >/dev/null && return
+    sleep 0.1
+  done
+}
+
+focus_window() { hyprctl dispatch "hl.dsp.focus({ window = $(lua "class:org.pulse.$1") })" >/dev/null; }
+
+# Logs follow a service across restarts and rebuilds.
+logs() { echo "while true; do docker compose logs -f --tail 40 $1; echo; echo waiting for $1...; sleep 3; done"; }
+
+focus "$workspace"
+# api | postgres side by side, then each split top and bottom:
+#   api      postgres
+#   ax       status
+open api "api" "$(logs api)"
+open postgres "postgres" "$(logs postgres)"
+focus_window api
+open ax "ax" "$(logs ax)"
+focus_window postgres
+open status "status" "watch -c -t -n 5 scripts/pulse-status"

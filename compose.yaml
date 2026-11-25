@@ -43,6 +43,33 @@ services:
     entrypoint: ["/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "ax", "-U", "sa", "-P", "Pulse_local_1!", "-b", "-i", "/ax/schema.sql"]
     restart: "no"
 
+  # Pulse itself: syncs AX and Shopify into Postgres every 15 minutes.
+  # Shopify credentials come from .env (see README); without them only AX syncs.
+  api:
+    build:
+      context: .
+      dockerfile: src/Pulse.Api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ax-init:
+        condition: service_completed_successfully
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=pulse;Username=pulse;Password=pulse
+      Ax__ConnectionString: Server=ax,1433;Database=DynamicsAx;User Id=sa;Password=Pulse_local_1!;TrustServerCertificate=true
+    ports:
+      - "5099:8080"
+    healthcheck:
+      # The runtime image has no curl, so ask /health over bash's /dev/tcp.
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080 && printf \"GET /health HTTP/1.0\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
 volumes:
   postgres-data:
   ax-data:
