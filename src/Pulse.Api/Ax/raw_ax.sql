@@ -13,6 +13,17 @@ CREATE TABLE IF NOT EXISTS raw_ax.inventtable (
     synced_at        timestamptz NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS raw_ax.inventitembarcode (
+    itembarcode      text        NOT NULL,
+    itemid           text        NOT NULL,
+    inventdimid      text        NOT NULL,
+    barcodesetupid   text        NOT NULL,
+    useforinput      integer     NOT NULL,
+    dataareaid       text        NOT NULL,
+    recid            bigint      PRIMARY KEY,
+    synced_at        timestamptz NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS raw_ax.inventdim (
     inventdimid      text        NOT NULL,
     inventsiteid     text        NOT NULL,

@@ -13,7 +13,7 @@ public class AxSeeder(string connectionString, string dataAreaId)
     private static readonly TimeSpan OpenFor = TimeSpan.FromDays(14);
 
     private static readonly string[] Tables =
-        ["SALESLINE", "SALESTABLE", "CUSTTABLE", "PRICEDISCTABLE", "INVENTSUM", "INVENTDIM", "INVENTTABLE"];
+        ["SALESLINE", "SALESTABLE", "CUSTTABLE", "PRICEDISCTABLE", "INVENTSUM", "INVENTDIM", "INVENTITEMBARCODE", "INVENTTABLE"];
 
     private long _recId;
 
@@ -59,6 +59,12 @@ public class AxSeeder(string connectionString, string dataAreaId)
                 ["ITEMID"] = variant.Sku,
                 ["ITEMNAME"] = $"{product.Title}, {variant.Colour}",
                 ["ITEMGROUPID"] = product.Category,
+            });
+            await Insert("INVENTITEMBARCODE", new()
+            {
+                ["ITEMBARCODE"] = variant.Gtin,
+                ["ITEMID"] = variant.Sku,
+                ["BARCODESETUPID"] = "EAN13",
             });
 
             var stock = new Dictionary<string, int> { [Warehouse] = variant.Stock };

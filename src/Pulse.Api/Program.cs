@@ -1,5 +1,6 @@
 using Npgsql;
 using Pulse.Api.Ax;
+using Pulse.Api.Core;
 using Pulse.Api.Shopify;
 using Pulse.Api.Sync;
 
@@ -30,6 +31,18 @@ if (syncEnabled)
 }
 
 var app = builder.Build();
+
+if (syncEnabled)
+{
+    try
+    {
+        await Schema.CreateAsync(app.Services.GetRequiredService<NpgsqlDataSource>());
+    }
+    catch (NpgsqlException e)
+    {
+        throw new InvalidOperationException("Can't set up the Postgres schema. Is Postgres running? Start it with: docker compose up -d", e);
+    }
+}
 
 if (syncEnabled && !shopifyConfigured)
     app.Logger.LogWarning("Shopify sync is off: Shopify credentials are missing. Set them with dotnet user-secrets (see README).");

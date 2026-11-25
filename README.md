@@ -44,6 +44,9 @@ dotnet test
 15 minutes: `raw_ax.*` mirrors the AX tables, `raw_shopify.*` the webshop.
 Stock is appended to each schema's `stock_snapshots` rather than replaced,
 so its history builds up. Without Shopify credentials only AX is synced.
+On top sit the `core` views (`core.products`, `core.stock`,
+`core.stock_snapshots`, `core.orders`, `core.order_lines`): AX and Shopify
+combined per SKU, with GTIN as the fallback. Pulse answers from these.
 
 Shopify credentials live in user-secrets, never in git:
 

@@ -7,7 +7,7 @@ IF DB_ID('DynamicsAx') IS NULL CREATE DATABASE DynamicsAx;
 GO
 USE DynamicsAx;
 GO
--- Already created: skip the rest, so the script is safe to rerun.
+-- Already created: skip the first tables, so the script is safe to rerun.
 IF OBJECT_ID('INVENTTABLE') IS NOT NULL SET NOEXEC ON;
 GO
 
@@ -105,5 +105,23 @@ CREATE TABLE SALESLINE (
     CREATEDDATETIME  DATETIME        NOT NULL DEFAULT GETUTCDATE(),
     RECID            BIGINT          NOT NULL PRIMARY KEY,
     CONSTRAINT I_SALESLINEIDX UNIQUE (DATAAREAID, SALESID, LINENUM)
+);
+GO
+SET NOEXEC OFF;
+GO
+
+-- Tables added later are created one by one, so existing databases get them too.
+
+-- Barcodes (GTIN/EAN) per item. An item can have several.
+IF OBJECT_ID('INVENTITEMBARCODE') IS NULL
+CREATE TABLE INVENTITEMBARCODE (
+    ITEMBARCODE      NVARCHAR(80)  NOT NULL,
+    ITEMID           NVARCHAR(20)  NOT NULL,
+    INVENTDIMID      NVARCHAR(20)  NOT NULL DEFAULT '',
+    BARCODESETUPID   NVARCHAR(10)  NOT NULL DEFAULT '',
+    USEFORINPUT      INT           NOT NULL DEFAULT 1,
+    DATAAREAID       NVARCHAR(4)   NOT NULL,
+    RECID            BIGINT        NOT NULL PRIMARY KEY,
+    CONSTRAINT I_ITEMBARCODEIDX UNIQUE (DATAAREAID, ITEMBARCODE)
 );
 GO

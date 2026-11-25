@@ -19,7 +19,7 @@ public class AxSchemaTests : IAsyncLifetime
         var tables = await ListTablesAsync(connection);
 
         Assert.Equal(
-            ["CUSTTABLE", "INVENTDIM", "INVENTSUM", "INVENTTABLE", "PRICEDISCTABLE", "SALESLINE", "SALESTABLE"],
+            ["CUSTTABLE", "INVENTDIM", "INVENTITEMBARCODE", "INVENTSUM", "INVENTTABLE", "PRICEDISCTABLE", "SALESLINE", "SALESTABLE"],
             tables);
     }
 
@@ -30,7 +30,7 @@ public class AxSchemaTests : IAsyncLifetime
 
         await using var connection = await AxSchema.ApplyAsync(_sql.GetConnectionString());
 
-        Assert.Equal(7, (await ListTablesAsync(connection)).Count);
+        Assert.Equal(8, (await ListTablesAsync(connection)).Count);
     }
 
     private static async Task<List<string>> ListTablesAsync(SqlConnection connection)
