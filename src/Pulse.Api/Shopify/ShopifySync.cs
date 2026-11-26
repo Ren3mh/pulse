@@ -52,8 +52,11 @@ public class ShopifySync(ShopifyClient shopify, NpgsqlDataSource postgres, TimeP
         }
         """;
 
-    public async Task RunAsync(CancellationToken ct)
+    public string Source => "shopify";
+
+    public async Task<IReadOnlyDictionary<string, int>> RunAsync(CancellationToken ct)
     {
+        var rows = new Dictionary<string, int>();
         var syncedAt = clock.GetUtcNow();
         var products = await ReadAllAsync(ProductsQuery, "products", ct);
         var orders = await ReadAllAsync(OrdersQuery, "orders", ct);
@@ -74,6 +77,7 @@ public class ShopifySync(ShopifyClient shopify, NpgsqlDataSource postgres, TimeP
             await using var command = new NpgsqlCommand(sql, pg, transaction);
             foreach (var (key, value) in row) command.Parameters.AddWithValue(key, value ?? DBNull.Value);
             await command.ExecuteNonQueryAsync(ct);
+            rows["raw_shopify." + table] = rows.GetValueOrDefault("raw_shopify." + table) + 1;
         }
 
         await Execute(pg, transaction, "DELETE FROM raw_shopify.variants; DELETE FROM raw_shopify.products;", ct);
@@ -160,6 +164,7 @@ public class ShopifySync(ShopifyClient shopify, NpgsqlDataSource postgres, TimeP
         }
 
         await transaction.CommitAsync(ct);
+        return rows;
     }
 
     // Follows the cursor until the last page.

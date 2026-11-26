@@ -1,6 +1,7 @@
 using Npgsql;
 using Pulse.Api.Ax;
 using Pulse.Api.Core;
+using Pulse.Api.Dashboard;
 using Pulse.Api.Shopify;
 using Pulse.Api.Sync;
 
@@ -10,10 +11,10 @@ var config = builder.Configuration;
 // Copies AX and Shopify into Postgres every 15 minutes. Off in tests that don't need it.
 var syncEnabled = config.GetValue("Sync:Enabled", true);
 var shopifyConfigured = !string.IsNullOrEmpty(config["Shopify:ClientSecret"]);
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton(NpgsqlDataSource.Create(config.GetConnectionString("Postgres")!));
 if (syncEnabled)
 {
-    builder.Services.AddSingleton(TimeProvider.System);
-    builder.Services.AddSingleton(NpgsqlDataSource.Create(config.GetConnectionString("Postgres")!));
 
     builder.Services.AddSingleton(sp => new AxSync(
         config["Ax:ConnectionString"]!, config["Ax:DataAreaId"]!, sp.GetRequiredService<NpgsqlDataSource>(), sp.GetRequiredService<TimeProvider>()));
@@ -49,5 +50,9 @@ if (syncEnabled && !shopifyConfigured)
 
 // Lets Docker, CI and later the load balancer check that the API is up.
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
+// A map of the system with live sync and stock stats. Localhost only, read-only.
+app.UseStaticFiles();
+app.MapDashboard(new DashboardData.Options(syncEnabled && shopifyConfigured, config["Dashboard:Warehouse"]!));
 
 app.Run();
