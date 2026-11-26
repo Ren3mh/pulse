@@ -15,6 +15,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    # Back up after a reboot, like api; `docker compose stop` keeps it stopped.
+    restart: unless-stopped
 
   # Stand-in for the retailer's Dynamics AX 2009 database (SQL Server).
   ax:
@@ -31,6 +33,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
 
   # Creates the AX tables once SQL Server is up, then exits.
   ax-init:

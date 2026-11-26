@@ -44,6 +44,11 @@ dotnet test
 `postgres` and `ax`, and a status pane (`scripts/pulse-status`: health, last
 sync, row counts). Run it again to jump back there.
 
+Each morning, `/today` in Claude Code gives a short brief: where the project
+stands, what to start, and what to do next. `scripts/pulse-morning` opens
+Claude with it once a day; an Omarchy `post-boot` hook can run that at login
+(`omarchy hook install post-boot <script that runs it>`).
+
 To work on the API itself, stop its container (`docker compose stop api`)
 and run it with `dotnet run --project src/Pulse.Api` instead.
 

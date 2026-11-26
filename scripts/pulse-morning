@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Opens Claude in this repo with the /today brief, once per day. Run at login
+# by the Omarchy post-boot hook (see README); safe to run again by hand.
+set -euo pipefail
+repo="$(cd "$(dirname "$0")/.." && pwd)"
+stamp="${XDG_STATE_HOME:-$HOME/.local/state}/pulse/last-morning"
+
+today=$(date +%F)
+[[ ${1:-} != --force && -f $stamp && $(<"$stamp") == "$today" ]] && exit 0
+mkdir -p "$(dirname "$stamp")"
+echo "$today" >"$stamp"
+
+cd "$repo"
+exec omarchy agent prompt "/today"
